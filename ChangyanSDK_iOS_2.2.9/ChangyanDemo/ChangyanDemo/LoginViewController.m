@@ -104,6 +104,12 @@
                     // 发送登陆成功消息
                     [[NSNotificationCenter defaultCenter] postNotificationName:kChangyanLoginNotification object:self];
                     
+//                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"登陆成功!" preferredStyle:UIAlertControllerStyleAlert];
+//                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+//                    [alertController addAction:cancelAction];
+//                    
+//                    [self presentViewController:alertController animated:YES completion:nil];
+                    
                     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil
                                                                     message:@"登陆成功!"
                                                                    delegate:nil

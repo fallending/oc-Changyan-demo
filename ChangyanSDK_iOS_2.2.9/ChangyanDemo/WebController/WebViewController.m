@@ -72,7 +72,7 @@
         NSLog(@"User agent has been setup./n%@", userAgent);
     }];
     
-    self.handler = [[AEJavaScriptHandler alloc] init];
+    self.handler = [[AEJavaScriptHandler alloc] initWithPerformer:self];
     
     {
         AEJSHandlerContext *instanceSelContext = [AEJSHandlerContext contextWithPerformer:self selector:NSSelectorFromString(@"aesCloseWebView:") aliasName:@"aesCloseWebView"];
