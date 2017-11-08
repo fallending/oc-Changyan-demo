@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html class="comment-test-page">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,user-scalable=no" />
+        
+        <title>评论测试页面</title>
+        
+        <!--        第三方css-->
+        <link rel="stylesheet" type="text/css" href="http://static.h-ui.net/h-ui/3.1/css/H-ui.min.css" />
+        <link rel="stylesheet" type="text/css" href="http://static.h-ui.net/h-ui.admin/3.1/css/H-ui.admin.css" />
+        <link rel="stylesheet" type="text/css" href="http://static.h-ui.net/www/home/css/H-ui.doc.css" />
+        <link rel="stylesheet" type="text/css" href="http://lib.h-ui.net/Hui-iconfont/1.0.8/iconfont.min.css" />
+        <!--第三方css 结束-->
+        
+        <link rel="stylesheet" type="text/css" href="css/app.css" />
+        
+        <script type="text/javascript" src="http://lib.h-ui.net/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript" src="js/index.js?v=0.0.34"></script>
+        
+        <!-- 反运营商劫持 S -->
+        <style type="text/css">
+            html {
+                display:none}
+        </style>
+        <script>
+            if( self == top ) {
+                document.documentElement.style.display = 'block' } else {
+                    top.location = self.location }
+        </script>
+        <!-- 反运营商劫持 E -->
+        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({
+                                                          google_ad_client: "ca-pub-2472599678883446",
+                                                          enable_page_level_ads: true
+                                                          });
+        </script>
+        
+        <script type="text/javascript" src="/static/common/js/jsbridge/index.js?v=0.0.34"></script>
+    </head>
+    
+    <body>
+        <section style="margin-bottom:44px;">
+            <button id="btn-login" class="button button1" style="vertical-align:middle"><span>登录 </span></button>
+            <br>
+            <button id="btn-submit-comment" class="button button2" style="vertical-align:middle"><span>发表评论 </span></button>
+        </section>
+        <article class="cl pd-20 footer">
+            <!--高速版-->
+            <div id="SOHUCS" sid="8776899"></div>
+            <script charset="utf-8" type="text/javascript" src="http://changyan.sohu.com/upload/changyan.js" ></script>
+            <script type="text/javascript">
+                 window.changyan.api.config({
+                                           appid: 'cystmLO0N',
+                                           conf: 'prod_06226f5d322c22bcd421cb90462fe2a2'
+                                           });
+                //window.changyan.api.config({
+                //   appid: 'cytiQOUlM',
+                //   conf: 'cfe6365d2dd08f920c896161204c666e'
+                //});
+            </script>
+        </article>
+        
+        <footer class="footer mt-20">
+            <div class="container-fluid">
+                <nav>
+                    <a href="" target="_blank">关于H-ui</a>
+                    <span class="pipe">|</span>
+                    <a href="" target="_blank">软件著作权</a>
+                    <span class="pipe">|</span>
+                    <a href="" target="_blank">感谢捐赠</a>
+                </nav>
+                <p>Copyright &copy;2013-2017 H-ui.net All Rights Reserved. <br>
+                <a href="http://www.miitbeian.gov.cn/" target="_blank" rel="nofollow">京ICP备15015336号-1</a><br>
+                未经允许，禁止转载、抄袭、镜像<br>
+                用心做站，做不一样的站</p>
+            </div>
+        </footer>
+        
+        <script type="text/javascript">
+            var callback = {
+                "success_callback":function(config) {
+                    alert(config.title)
+                },
+                "success_arg":{
+                    "title":"success"
+                },
+                "fail_callback":function(config) {
+                    alert(config.title)
+                },
+                "fail_arg":{
+                    "title":"fail"
+                }
+            };
+        
+            $('#btn-login').click(function() {
+              console.log('Function:login');
+              console.log([callback]);
+              window.ESports.login(callback);
+            });
+            $('#btn-submit-comment').click(function() {
+               var arg = {
+               "title": "分享标题",
+               "desc": "分享描述",
+               "preview": "http://oneimg.oss-cn-hangzhou.aliyuncs.com/xu01_test/20170329/1490750996771.jpg",
+               "shareUrl": "https://m.taobao.com"
+               };
+               console.log('Function:share');
+               console.log([arg,callback]);
+               window.ESports.share(arg,callback);
+            });
+        </script>
+    </body>
+    
+</html
