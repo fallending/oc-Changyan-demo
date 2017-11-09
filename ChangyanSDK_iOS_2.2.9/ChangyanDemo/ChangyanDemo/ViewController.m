@@ -32,6 +32,42 @@
     NSString *imgPath = [bundle pathForResource:@"mylogin" ofType:@"png"];
     UIImage *image = [UIImage imageWithContentsOfFile:imgPath];
     
+    /************************** 新增调试入口 *************************/
+    {
+        // 1
+        UIButton *leftBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [leftBtn addTarget:self action:@selector(onManualLogin) forControlEvents:UIControlEventTouchUpInside];
+        [leftBtn setTitle:@"登录入口" forState:UIControlStateNormal];
+        
+        [leftBtn sizeToFit];
+        UIBarButtonItem *loginBtnItem = [[UIBarButtonItem alloc] initWithCustomView:leftBtn];
+        
+        [self.navigationItem setLeftBarButtonItems:@[loginBtnItem]];
+        
+        // 1
+        UIButton *informationCardBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [informationCardBtn addTarget:self action:@selector(onWorkingWithWebView) forControlEvents:UIControlEventTouchUpInside];
+        [informationCardBtn setTitle:@"测试" forState:UIControlStateNormal];
+        
+        [informationCardBtn sizeToFit];
+        UIBarButtonItem *informationCardItem = [[UIBarButtonItem alloc] initWithCustomView:informationCardBtn];
+        
+        // 2
+        UIBarButtonItem *fixedSpaceBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+        fixedSpaceBarButtonItem.width = 22;
+        
+        // 3
+        UIButton *settingBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [settingBtn addTarget:self action:@selector(onWorkingWithWebView) forControlEvents:UIControlEventTouchUpInside];
+        [informationCardBtn setTitle:@"测试" forState:UIControlStateNormal];
+        [settingBtn sizeToFit];
+        UIBarButtonItem *settingBtnItem = [[UIBarButtonItem alloc] initWithCustomView:settingBtn];
+        
+//        self.navigationItem.rightBarButtonItems  = @[informationCardItem,fixedSpaceBarButtonItem,settingBtnItem];
+//
+        [self.navigationItem setRightBarButtonItems:@[informationCardItem,fixedSpaceBarButtonItem,settingBtnItem]];
+    }
+    
     /************************** 界面接口使用 *************************/
     // 发评论按钮1
     UIView *postButton = [ChangyanSDK getPostCommentBar:CGRectMake(5, 400, 150, 30)
@@ -250,8 +286,7 @@
     
 }
 
-- (void)postCommentView
-{
+- (void)postCommentView {
     UIViewController *postViewController = [ChangyanSDK getPostCommentViewController:@"http://test/topic/test.html"
                                                                              topicID:nil
                                                                        topicSourceID:@"20131125"
@@ -264,8 +299,7 @@
     }];
 }
 
-- (void)listCommentView
-{
+- (void)listCommentView {
     UIViewController *listViewController = [ChangyanSDK getListCommentViewController:@""
                                                                              topicID:nil
                                                                        topicSourceID:@"20131125"
@@ -278,187 +312,152 @@
     }];
 }
 
+#pragma mark - 获取文章
 
-- (void)topicButtonClick
-{
-    [self.navigationController pushViewController:[WebViewController new] animated:YES];
-    
-    /////////////////////////////////////
-    
-//    [ChangyanSDK loadTopic:@"" topicTitle:nil topicSourceID:@"storenews_21" topicCategoryID:nil pageSize:@"20" hotSize:@"3" orderBy:nil style:nil depth:nil subSize:nil completeBlock:^(CYStatusCode statusCode, NSString *responseStr)
-//     {
-//         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"获取文章"
-//                                                         message:responseStr
-//                                                        delegate:nil
-//                                               cancelButtonTitle:@"确定"
-//                                               otherButtonTitles:nil];
-//         [alert show];
-//     }];
-}
-
-- (void)commentCountButtonClick
-{
-    [ChangyanSDK getCommentCount:nil topicSourceID:@"20131125" topicUrl:nil completeBlock:^(CYStatusCode statusCode, NSString *responseStr)
-     {
-         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"评论数"
-                                                         message:responseStr
-                                                        delegate:nil
-                                               cancelButtonTitle:@"确定"
-                                               otherButtonTitles:nil];
-         [alert show];
+- (void)topicButtonClick {
+    [ChangyanSDK loadTopic:@"" topicTitle:nil topicSourceID:@"storenews_21" topicCategoryID:nil pageSize:@"20" hotSize:@"3" orderBy:nil style:nil depth:nil subSize:nil completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
+        
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"获取文章" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
      }];
 }
 
-- (void)commentCountsButtonClick
-{
+- (void)commentCountButtonClick {
+    [ChangyanSDK getCommentCount:nil topicSourceID:@"20131125" topicUrl:nil completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"评论数" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
+     }];
+}
+
+- (void)commentCountsButtonClick {
     [ChangyanSDK getCommentCounts:@"20131125,20131126,20131127" topicSourceIds:nil topicUrls:nil completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"评论数"
-                                                        message:responseStr
-                                                       delegate:nil
-                                              cancelButtonTitle:@"确定"
-                                              otherButtonTitles:nil];
-        [alert show];
+        
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"评论数" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
     }];
 }
 
 
-- (void)commentListButtonClick
-{
-    [ChangyanSDK getTopicComments:@"58776059" pageSize:@"5" pageNo:@"5" orderBy:nil style:nil depth:nil subSize:nil completeBlock:^(CYStatusCode statusCode, NSString *responseStr)
-     {
-         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"获取评论"
-                                                         message:@"获取评论成功"
-                                                        delegate:nil
-                                               cancelButtonTitle:@"确定"
-                                               otherButtonTitles:nil];
-         [alert show];
+- (void)commentListButtonClick {
+    [ChangyanSDK getTopicComments:@"58776059" pageSize:@"5" pageNo:@"5" orderBy:nil style:nil depth:nil subSize:nil completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
          NSLog(@"%@", responseStr);
-     }];
-}
-
-- (void)replyCommentButtonClick
-{
-    [ChangyanSDK getCommentReplies:@"58776059" commentID:@"129605488" pageSize:nil pageNo:nil completeBlock:^(CYStatusCode statusCode, NSString *responseStr)
-     {
-         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"评论的回复"
-                                                         message:responseStr
-                                                        delegate:nil
-                                               cancelButtonTitle:@"确定"
-                                               otherButtonTitles:nil];
-         [alert show];
-     }];
-}
-
-
-- (void)commentActionButtonClick
-{
-    [ChangyanSDK commentAction:1 topicID:@"622447800" commentID:@"706788112" completeBlock:^(CYStatusCode statusCode, NSString *responseStr)
-     {
          
-         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"顶\\踩"
-                                                         message:responseStr
-                                                        delegate:nil
-                                               cancelButtonTitle:@"确定"
-                                               otherButtonTitles:nil];
-         [alert show];
+         
+         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"获取评论" message:@"获取评论成功" preferredStyle:UIAlertControllerStyleAlert];
+         UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+         [alertController addAction:cancelAction];
+         
+         [self presentViewController:alertController animated:YES completion:nil];
+     }];
+}
+
+- (void)replyCommentButtonClick {
+    [ChangyanSDK getCommentReplies:@"58776059" commentID:@"129605488" pageSize:nil pageNo:nil completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
+        
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"评论的回复" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
      }];
 }
 
 
-- (void)averageScoreButtonClick
-{
-    [ChangyanSDK getTopicAverageScore:@"58776059" topicSourceID:nil topicUrl:nil simple:YES completeBlock:^(CYStatusCode statusCode, NSString *responseStr)
-     {
-         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"平均分"
-                                                         message:responseStr
-                                                        delegate:nil
-                                               cancelButtonTitle:@"确定"
-                                               otherButtonTitles:nil];
-         [alert show];
-     }];
-}
-- (void)scoreCommentsButtonClick
-{
-    [ChangyanSDK getTopicScoreComments:@"58776059" topicSourceID:nil topicUrl:nil count:10 completeBlock:^(CYStatusCode statusCode, NSString *responseStr)
-     {
-         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"评分评论"
-                                                         message:responseStr
-                                                        delegate:nil
-                                               cancelButtonTitle:@"确定"
-                                               otherButtonTitles:nil];
-         [alert show];
+- (void)commentActionButtonClick {
+    [ChangyanSDK commentAction:1 topicID:@"622447800" commentID:@"706788112" completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
+         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"顶\\踩" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
+         UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+         [alertController addAction:cancelAction];
+         
+         [self presentViewController:alertController animated:YES completion:nil];
      }];
 }
 
-- (void)anonymousSubmitCommentsButtonClick
-{
+- (void)averageScoreButtonClick {
+    [ChangyanSDK getTopicAverageScore:@"58776059" topicSourceID:nil topicUrl:nil simple:YES completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"平均分" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
+     }];
+}
+- (void)scoreCommentsButtonClick {
+    [ChangyanSDK getTopicScoreComments:@"58776059" topicSourceID:nil topicUrl:nil count:10 completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"评分评论" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
+     }];
+}
+
+- (void)anonymousSubmitCommentsButtonClick {
     [ChangyanSDK anonymousSubmitComment:@"58776059" content:@"测试评论" replyID:nil score:@"3" appType:40 picUrls:nil metadata:@"~ meta info ~" completeBlock:^(CYStatusCode statusCode, NSString *responseStr)
      {
-         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"匿名提交评论"
-                                                         message:responseStr
-                                                        delegate:nil
-                                               cancelButtonTitle:@"确定"
-                                               otherButtonTitles:nil];
-         [alert show];
+         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"匿名提交评论" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
+         UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+         [alertController addAction:cancelAction];
+         
+         [self presentViewController:alertController animated:YES completion:nil];
      }];
 }
 
-- (void)thirdPartLoginButtonClick
-{
-    if ([ChangyanSDK isLogin])
-    {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"登录"
-                                                        message:@"已登录"
-                                                       delegate:nil
-                                              cancelButtonTitle:@"确定"
-                                              otherButtonTitles:nil];
-        [alert show];
-    }
-    else
-    {
+- (void)thirdPartLoginButtonClick {
+    if ([ChangyanSDK isLogin]) {
+        
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"登录" message:@"已登录" preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
+    } else {
         [ChangyanSDK thirdPartLogin:2 completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
-            if (statusCode == CYSuccess)
-            {
-                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"登录"
-                                                                message:responseStr
-                                                               delegate:nil
-                                                      cancelButtonTitle:@"确定"
-                                                      otherButtonTitles:nil];
-                [alert show];
+            if (statusCode == CYSuccess) {
+                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"登录" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
+                UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+                [alertController addAction:cancelAction];
+                
+                [self presentViewController:alertController animated:YES completion:nil];
             }
         }];
     }
 }
 
-- (void)isvLoginButtonClick
-{
-    if ([ChangyanSDK isLogin])
-    {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"单点登录"
-                                                        message:@"已登录"
-                                                       delegate:nil
-                                              cancelButtonTitle:@"确定"
-                                              otherButtonTitles:nil];
-        [alert show];
-    }
-    else
-    {
+- (void)isvLoginButtonClick {
+    if ([ChangyanSDK isLogin]) {
+        
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"单点登录" message:@"已登录" preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
+        
+    } else {
         [ChangyanSDK loginSSO:@"87654321" userName:@"kingzwt" profileUrl:nil imgUrl:nil completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
-            if (statusCode == CYSuccess)
-            {
-                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"单点登录"
-                                                                message:responseStr
-                                                               delegate:nil
-                                                      cancelButtonTitle:@"确定"
-                                                      otherButtonTitles:nil];
-                [alert show];
+            if (statusCode == CYSuccess) {
+                
+                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"单点登录" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
+                UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+                [alertController addAction:cancelAction];
+                
+                [self presentViewController:alertController animated:YES completion:nil];
+                
             }
         }];
     }
 }
 
-- (void)logoutButtonClick
-{
+- (void)logoutButtonClick {
     //[ChangyanSDK logout];
     NSString *str = @"已登出";
     if ([ChangyanSDK isLogin]) {
@@ -466,81 +465,92 @@
         str = @"登出成功";
     }
     
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"登出"
-                                                    message:str
-                                                   delegate:nil
-                                          cancelButtonTitle:@"确定"
-                                          otherButtonTitles:nil];
-    [alert show];
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"登出" message:str preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+    [alertController addAction:cancelAction];
     
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
-- (void)submitCommentButtonClick
-{
+- (void)submitCommentButtonClick {
     [ChangyanSDK submitComment:@"58776059" content:@"新发表评论" replyID:nil score:@"5" appType:40 picUrls:nil metadata:@"- meta info -" completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"提交评论"
-                                                        message:responseStr
-                                                       delegate:nil
-                                              cancelButtonTitle:@"确定"
-                                              otherButtonTitles:nil];
-        [alert show];
+        
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
+
     }];
 }
 
-- (void)postImageButtonClick
-{
+- (void)postImageButtonClick {
     NSBundle *bundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"changyan" ofType:@"bundle"]];
     NSString *imgPath = [bundle pathForResource:@"mylogin" ofType:@"png"];
     UIImage *image = [UIImage imageWithContentsOfFile:imgPath];
     
     NSData *imageData = UIImageJPEGRepresentation(image, 0.5f);
-    [ChangyanSDK uploadAttach:imageData completeBlock:^(CYStatusCode statusCode, NSString *responseStr)
-     {
-         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"上传图片"
-                                                         message:responseStr
-                                                        delegate:nil
-                                               cancelButtonTitle:@"确定"
-                                               otherButtonTitles:nil];
-         [alert show];
+    [ChangyanSDK uploadAttach:imageData completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
+        
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"上传图片" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
+        
          NSLog(@"%@", responseStr);
      }];
 }
 
-- (void)getUserInfoButtonClick
-{
-    [ChangyanSDK getUserInfo:^(CYStatusCode statusCode, NSString *responseStr)
-     {
-         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"获取用户信息"
-                                                         message:responseStr
-                                                        delegate:nil
-                                               cancelButtonTitle:@"确定"
-                                               otherButtonTitles:nil];
-         [alert show];
+- (void)getUserInfoButtonClick {
+    [ChangyanSDK getUserInfo:^(CYStatusCode statusCode, NSString *responseStr) {
+        
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"获取用户信息" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
      }];
 }
-- (void)getNewReplyButtonClick
-{
-    [ChangyanSDK getUserNewReply:@"20" pageNo:@"1" completeBlock:^(CYStatusCode statusCode, NSString *responseStr)
-     {
-         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"获取最新回复"
-                                                         message:responseStr
-                                                        delegate:nil
-                                               cancelButtonTitle:@"确定"
-                                               otherButtonTitles:nil];
-         [alert show];
+- (void)getNewReplyButtonClick {
+    [ChangyanSDK getUserNewReply:@"20" pageNo:@"1" completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
+        
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"获取最新回复" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
+        
      }];
 }
 
-- (void)getUserCommentsButtonClick
-{
+- (void)getUserCommentsButtonClick {
     [ChangyanSDK getUserComments:@"115151422" pageSize:@"10" pageNumber:@"1" completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"获取用户评论"
-                                                        message:responseStr
-                                                       delegate:nil
-                                              cancelButtonTitle:@"确定"
-                                              otherButtonTitles:nil];
-        [alert show];
+        
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"获取用户评论" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
+    
     }];
+}
+
+#pragma mark - 新增入口部分
+
+- (void)onWorkingWithWebView {
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"进入内置浏览器测试环境!" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action){
+        [self.navigationController pushViewController:[WebViewController new] animated:YES];
+    }];
+    [alertController addAction:cancelAction];
+
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void)onManualLogin {
+    [self presentViewController:[LoginViewController new] animated:YES completion:nil];
 }
 
 @end

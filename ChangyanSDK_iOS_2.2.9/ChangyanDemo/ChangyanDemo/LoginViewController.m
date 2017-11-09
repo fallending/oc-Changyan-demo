@@ -22,8 +22,7 @@
 
 @implementation LoginViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
@@ -31,20 +30,16 @@
     return self;
 }
 
-- (void)viewDidLoad
-{
-    
+- (void)viewDidLoad {
     [super viewDidLoad];
+    
     _panelView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
     _panelView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:_panelView];
     
-    if (IS_OS_7_OR_LATER)
-    {
+    if (IS_OS_7_OR_LATER) {
         _headBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 20, kScreenWidth, 44)];
-    }
-    else
-    {
+    } else {
         _headBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, 44)];
     }
     
@@ -86,8 +81,8 @@
     [loginButton addTarget:self action:@selector(loginClick) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:loginButton];
 }
-- (void)loginClick
-{
+
+- (void)loginClick {
     // 首先自己登陆成功
     // 然后调用畅言单点登陆接口loginSSO
     [ChangyanSDK loginSSO:@"33984533"
@@ -97,37 +92,39 @@
      
      // http://0d077ef9e74d8.cdn.sohucs.com/fac494264beff70ed91fedf32783552b_default_1449556055750_jpg
             completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
-                if(statusCode == CYSuccess)
-                {
+                if(statusCode == CYSuccess) {
                     NSLog(@"%@", responseStr);
                     NSLog(@"login success!");
                     // 发送登陆成功消息
                     [[NSNotificationCenter defaultCenter] postNotificationName:kChangyanLoginNotification object:self];
                     
-//                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"登陆成功!" preferredStyle:UIAlertControllerStyleAlert];
-//                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
-//                    [alertController addAction:cancelAction];
-//                    
-//                    [self presentViewController:alertController animated:YES completion:nil];
+                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"登陆成功!" preferredStyle:UIAlertControllerStyleAlert];
+                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action){
+                        [self dismissViewControllerAnimated:YES completion:nil];
+                    }];
+                    [alertController addAction:cancelAction];
                     
-                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil
-                                                                    message:@"登陆成功!"
-                                                                   delegate:nil
-                                                          cancelButtonTitle:@"确定"
-                                                          otherButtonTitles:nil];
-                    [alert show];
-                    [self dismissViewControllerAnimated:YES completion:nil];
+                    [self presentViewController:alertController animated:YES completion:nil];
+                } else {
+                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"登陆失败!" preferredStyle:UIAlertControllerStyleAlert];
+                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action){
+                        [self dismissViewControllerAnimated:YES completion:nil];
+                    }];
+                    [alertController addAction:cancelAction];
+                    
+                    [self presentViewController:alertController animated:YES completion:nil];
                 }
             }
      ];
 }
-- (void)close
-{
+
+- (void)close {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
-- (void)didReceiveMemoryWarning
-{
+
+- (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
 @end
