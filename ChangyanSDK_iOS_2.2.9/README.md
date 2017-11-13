@@ -8,7 +8,7 @@ http://changyan.kuaizhan.com/static/help/b-audit-setting.html
 
 ### Account
 
-18616361386 + wechat
+请自行注册
 
 ### Info
 

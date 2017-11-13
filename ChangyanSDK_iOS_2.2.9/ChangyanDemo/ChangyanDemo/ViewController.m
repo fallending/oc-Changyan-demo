@@ -99,20 +99,20 @@
     /** 发送按钮点击事件 */
     self.inputBarStyleDefault.sendBlcok = ^(NSString *text) {
 //        [weakSelf.inputBarStyleDefault hide];//隐藏输入框
-        [[_PopupWindow sharedWindow] dismissView:self.sgAlertView Animated:YES];
+        [[_PopupWindow sharedWindow] dismissView:weakSelf.sgAlertView Animated:YES];
         
         [[ChangyanManager sharedInstance].topic submitComment:@"58776059" content:text success:^(TopicManager *topic) {
             UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"成功" preferredStyle:UIAlertControllerStyleAlert];
             UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
             [alertController addAction:cancelAction];
             
-            [self presentViewController:alertController animated:YES completion:nil];
+            [weakSelf presentViewController:alertController animated:YES completion:nil];
         } failure:^(NSError *error) {
             UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"失败" preferredStyle:UIAlertControllerStyleAlert];
             UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
             [alertController addAction:cancelAction];
             
-            [self presentViewController:alertController animated:YES completion:nil];
+            [weakSelf presentViewController:alertController animated:YES completion:nil];
         }];
     };
     
