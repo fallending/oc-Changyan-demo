@@ -1,17 +1,11 @@
-//
-//  XHInputView.h
-//  XHInputViewExample
-//
-//  Created by zhuxiaohui on 2017/10/20.
-//  Copyright © 2017年 it7090.com. All rights reserved.
-//  代码地址:https://github.com/CoderZhuXH/XHInputView
+//  参考：https://github.com/CoderZhuXH/XHInputView
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-typedef NS_ENUM(NSInteger,InputViewStyle) {
-    InputViewStyleDefault,
-    InputViewStyleLarge,
+typedef NS_ENUM(NSInteger, _InputBarStyle) {
+    _InputBarStyleDefault,
+    _InputBarStyleLarge,
 };
 
 @class _InputBar;
@@ -80,9 +74,10 @@ typedef NS_ENUM(NSInteger,InputViewStyle) {
 @property (nonatomic, copy) void(^sendBlcok)(NSString *text);
 
 /** 初始化方法 */
-- (instancetype)initWithStyle:(InputViewStyle)style;
+- (instancetype)initWithStyle:(_InputBarStyle)style;
 
 /** 显示输入框 */
+// 警告！！！！！！！！！！！！！！这个方法还没调试的很好
 - (void)show;
 
 /** 隐藏输入框 */

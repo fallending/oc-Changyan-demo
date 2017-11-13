@@ -93,7 +93,7 @@
     
     __weak typeof(self) weakSelf = self;
     
-    self.inputBarStyleDefault = [self inputViewWithStyle:InputViewStyleDefault];
+    self.inputBarStyleDefault = [self inputViewWithStyle:_InputBarStyleDefault];
     self.inputBarStyleDefault.delegate = self;
     [self.view addSubview:self.inputBarStyleDefault];
     /** 发送按钮点击事件 */
@@ -614,7 +614,9 @@
 }
 
 - (void)onCommentAgain {
-    [self.inputBarStyleDefault show];
+//    [self.inputBarStyleDefault show];
+    
+    self.sgAlertView = [[_PopupWindow sharedWindow] showView:self.inputBarStyleDefault animation:YES];
 }
 
 #pragma mark - XHInputViewDelagete
@@ -642,7 +644,7 @@
 #define XHInputView_ScreenW    [UIScreen mainScreen].bounds.size.width
 #define XHInputView_ScreenH    [UIScreen mainScreen].bounds.size.height
 
--(_InputBar *)inputViewWithStyle:(InputViewStyle)style{
+- (_InputBar *)inputViewWithStyle:(_InputBarStyle)style{
     
     _InputBar *inputView = [[_InputBar alloc] initWithStyle:style];
     inputView.frame = CGRectMake(0, XHInputView_ScreenH-50, XHInputView_ScreenW, 50);

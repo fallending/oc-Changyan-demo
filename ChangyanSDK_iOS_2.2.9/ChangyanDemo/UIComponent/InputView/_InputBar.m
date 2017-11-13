@@ -22,7 +22,7 @@ static CGFloat keyboardAnimationDuration = 0.5;
 @property (nonatomic, strong) UILabel *placeholderLab;
 @property (nonatomic, strong) UIButton *sendButton;
 @property (nonatomic, strong) UIView *bgView;
-@property (nonatomic, assign) InputViewStyle style;
+@property (nonatomic, assign) _InputBarStyle style;
 @property (nonatomic, assign) CGRect showFrameDefault;
 @property (nonatomic, assign) CGRect sendButtonFrameDefault;
 @property (nonatomic, assign) CGRect textViewFrameDefault;
@@ -43,11 +43,11 @@ static CGFloat keyboardAnimationDuration = 0.5;
     [_textView becomeFirstResponder];
     
     switch (_style) {
-        case InputViewStyleLarge:{
+        case _InputBarStyleLarge:{
             if(_maxCount>0) _countLab.text = [NSString stringWithFormat:@"0/%ld",(long)_maxCount];
         }
             break;
-        case InputViewStyleDefault:{
+        case _InputBarStyleDefault:{
             [self resetFrameDefault];
         }
             break;
@@ -65,21 +65,30 @@ static CGFloat keyboardAnimationDuration = 0.5;
     [_textView resignFirstResponder];
 }
 
+- (NSNumber *)preferredHeight { // 加入 UIView 的 类别协议
+    
+    if (self.style == _InputBarStyleDefault) {
+        return @(XHInputView_StyleDefault_Height);
+    } else {
+        return @(XHInputView_StyleLarge_Height);
+    }
+}
+
 #pragma mark -
 
-- (instancetype)initWithStyle:(InputViewStyle)style {
+- (instancetype)initWithStyle:(_InputBarStyle)style {
     self = [super init];
     if (self) {
         _style = style;
         self.backgroundColor = [UIColor whiteColor];
         switch (style) {
-            case InputViewStyleDefault:{
+            case _InputBarStyleDefault:{
                 self.frame = CGRectMake(0, XHInputView_ScreenH, XHInputView_ScreenW, XHInputView_StyleDefault_Height);
                 [self setupStyleDefaultUI];
             }
                 break;
-            case InputViewStyleLarge:{
-                self.frame = CGRectMake(0, XHInputView_ScreenH, XHInputView_ScreenW, 170);
+            case _InputBarStyleLarge:{
+                self.frame = CGRectMake(0, XHInputView_ScreenH, XHInputView_ScreenW, XHInputView_StyleLarge_Height);
                 [self setupStyleLargeUI];
             }
                 break;
@@ -178,11 +187,11 @@ static CGFloat keyboardAnimationDuration = 0.5;
         if(textView.text.length>=_maxCount){
             textView.text = [textView.text substringToIndex:_maxCount];
         }
-        if(_style == InputViewStyleLarge){
+        if(_style == _InputBarStyleLarge){
             _countLab.text = [NSString stringWithFormat:@"%ld/%ld",(long)textView.text.length,(long)_maxCount];
         }
     }
-    if(_style == InputViewStyleDefault){
+    if(_style == _InputBarStyleDefault){
         
         CGFloat height = [self string:textView.text heightWithFont:textView.font constrainedToWidth:textView.bounds.size.width] + 2*XHInputView_StyleDefault_TBSpace;
         CGFloat heightDefault = XHInputView_StyleDefault_Height;
@@ -279,7 +288,7 @@ static CGFloat keyboardAnimationDuration = 0.5;
     _maxCount = maxCount;
     
     switch (_style) {
-        case InputViewStyleLarge:{
+        case _InputBarStyleLarge:{
             _countLab.text = [NSString stringWithFormat:@"0/%ld",(long)maxCount];
         }
             break;
