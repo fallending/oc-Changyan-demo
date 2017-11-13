@@ -10,4 +10,11 @@
 
 @interface TopicManager : NSObject
 
+// 加载文章
+@property (nonatomic, strong) NSString *topicResponse;
+
+- (void)loadTopicWith:(NSString *)sourceUrl sourceId:(NSString *)sourceId success:(void(^)(TopicManager *topic))successHandler failure:(void(^)(NSError *error))failureHandler;
+
+//
+
 @end
