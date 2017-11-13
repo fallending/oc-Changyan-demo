@@ -98,9 +98,22 @@
     [self.view addSubview:self.inputBarStyleDefault];
     /** 发送按钮点击事件 */
     self.inputBarStyleDefault.sendBlcok = ^(NSString *text) {
-        [weakSelf.inputBarStyleDefault hide];//隐藏输入框
+//        [weakSelf.inputBarStyleDefault hide];//隐藏输入框
+        [[_PopupWindow sharedWindow] dismissView:self.sgAlertView Animated:YES];
         
-//        self.textLab.text = text;
+        [[ChangyanManager sharedInstance].topic submitComment:@"58776059" content:text success:^(TopicManager *topic) {
+            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"成功" preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+            [alertController addAction:cancelAction];
+            
+            [self presentViewController:alertController animated:YES completion:nil];
+        } failure:^(NSError *error) {
+            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"失败" preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+            [alertController addAction:cancelAction];
+            
+            [self presentViewController:alertController animated:YES completion:nil];
+        }];
     };
     
     /////////////////////////////////////////////
@@ -598,18 +611,26 @@
     self.sgAlertView = [[_PopupWindow sharedWindow] showView:commentView animation:YES];
     
     [commentView setCancel:^{
-//        weakSelf.comment.TextView.text = nil;
-//        [weakSelf.comment.TextView resignFirstResponder];
-//        [weakSelf.TextField resignFirstResponder];
-        
         [[_PopupWindow sharedWindow] dismissView:self.sgAlertView Animated:YES];
     }];
     [commentView setSender:^(NSString * title){
-//         NSLog(@"yy = /** %@ */",title);
-//         weakSelf.comment.TextView.text = nil;
-//         [weakSelf.comment.TextView resignFirstResponder];
-//         [weakSelf.TextField resignFirstResponder];
         [[_PopupWindow sharedWindow] dismissView:self.sgAlertView Animated:YES];
+        
+        [[ChangyanManager sharedInstance].topic submitComment:@"58776059" content:title success:^(TopicManager *topic) {
+            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"成功" preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+            [alertController addAction:cancelAction];
+            
+            [self presentViewController:alertController animated:YES completion:nil];
+        } failure:^(NSError *error) {
+            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"失败" preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+            [alertController addAction:cancelAction];
+            
+            [self presentViewController:alertController animated:YES completion:nil];
+        }];
+        
+        
      }];
 }
 
@@ -644,7 +665,7 @@
 #define XHInputView_ScreenW    [UIScreen mainScreen].bounds.size.width
 #define XHInputView_ScreenH    [UIScreen mainScreen].bounds.size.height
 
-- (_InputBar *)inputViewWithStyle:(_InputBarStyle)style{
+- (_InputBar *)inputViewWithStyle:(_InputBarStyle)style {
     
     _InputBar *inputView = [[_InputBar alloc] initWithStyle:style];
     inputView.frame = CGRectMake(0, XHInputView_ScreenH-50, XHInputView_ScreenW, 50);
@@ -654,6 +675,7 @@
     inputView.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
     //占位符
     inputView.placeholder = @"请输入...";
+
     return inputView;
     
     //XHInputView 支持一下属性设置,详见XHInputView.h文件

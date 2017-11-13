@@ -18,7 +18,7 @@
 @interface _InputView : UIView
 
 @property (copy, nonatomic) void (^ cancel)(void);
-@property (copy, nonatomic) void (^ sender)(NSString * title);
+@property (copy, nonatomic) void (^ sender)(NSString *text);
 
 @property (weak, nonatomic) IBOutlet UITextView *textView;
 

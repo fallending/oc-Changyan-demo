@@ -27,4 +27,16 @@
     }];
 }
 
+- (void)submitComment:(NSString *)topicId content:(NSString *)content success:(void(^)(TopicManager *topic))successHandler failure:(void(^)(NSError *error))failureHandler {
+    [ChangyanSDK submitComment:topicId content:content replyID:nil score:@"5" appType:40/** iOS 平台 */ picUrls:nil metadata:@"- meta info -" completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
+        
+        if (statusCode == CYSuccess) {
+            successHandler(self);
+        } else {
+            failureHandler(nil);
+        }
+        
+    }];
+}
+
 @end
