@@ -5,8 +5,8 @@
  *  Usage
  
  1. As inputAccessoryView
- self.comment = [YYCommentControl yyCreatView];
- self.TextField.inputAccessoryView = self.comment;
+ self.input = [_InputView yyCreatView];
+ self.TextField.inputAccessoryView = self.input;
  
  2. As sub view
  
@@ -15,12 +15,12 @@
  
  */
 
-@interface _CommentView : UIView
+@interface _InputView : UIView
 
 @property (copy, nonatomic) void (^ cancel)(void);
 @property (copy, nonatomic) void (^ sender)(NSString * title);
 
-@property (weak, nonatomic) IBOutlet UITextView *TextView;
+@property (weak, nonatomic) IBOutlet UITextView *textView;
 
 + (instancetype)view;
 
