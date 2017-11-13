@@ -120,7 +120,7 @@
     
     /************************** 界面接口使用 *************************/
     // 发评论按钮1
-    UIView *postButton = [ChangyanSDK getPostCommentBar:CGRectMake(5, 400, 150, 30)
+    UIView *postButton = [ChangyanSDK getPostCommentBar:CGRectMake(5, 350, 150, 30)
                                       postCommentButton:nil
                                                topicUrl:@""
                                           topicSourceID:@"20131125"
@@ -133,7 +133,7 @@
     
     
     // 发评论按钮2  使用自定义UI
-    UIButton *btn = [[UIButton alloc] initWithFrame:CGRectMake(5, 450, 150, 30)];
+    UIButton *btn = [[UIButton alloc] initWithFrame:CGRectMake(5, 400, 150, 30)];
     [btn setTitle:@"大家来说说" forState:UIControlStateNormal];
     [btn setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
     [btn setBackgroundImage:image forState:UIControlStateNormal];
