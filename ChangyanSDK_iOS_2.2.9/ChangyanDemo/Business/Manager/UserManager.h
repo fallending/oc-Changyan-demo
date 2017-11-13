@@ -10,4 +10,9 @@
 
 @interface UserManager : NSObject
 
+// 登录
+- (void)loginWithUUID:(NSString *)uuid username:(NSString *)username imageUrl:(NSString *)imageUrl success:(void (^)(UserManager *user))successHandler failure:(void(^)(NSError *error))failureHandler;
+
+// 获取用户信息
+
 @end

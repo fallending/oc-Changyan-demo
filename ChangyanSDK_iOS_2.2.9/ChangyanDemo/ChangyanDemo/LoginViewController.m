@@ -7,7 +7,7 @@
 //
 
 #import "LoginViewController.h"
-#import "ChangyanSDK.h"
+#import "ChangyanManager.h"
 
 #define kScreenHeight      [UIScreen mainScreen].bounds.size.height
 #define kScreenWidth       [UIScreen mainScreen].bounds.size.width
@@ -83,39 +83,23 @@
 }
 
 - (void)loginClick {
-    // 首先自己登陆成功
-    // 然后调用畅言单点登陆接口loginSSO
-    [ChangyanSDK loginSSO:@"33984533"
-                 userName:@"测试昵称33894533"
-               profileUrl:@"http://test_profile_url.com"   // 个人主页
-                   imgUrl:@"http://sucimg.itc.cn/avatarimg/253473308_1434154914604_c175"   // 用户头像
-     
-     // http://0d077ef9e74d8.cdn.sohucs.com/fac494264beff70ed91fedf32783552b_default_1449556055750_jpg
-            completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
-                if(statusCode == CYSuccess) {
-                    NSLog(@"%@", responseStr);
-                    NSLog(@"login success!");
-                    // 发送登陆成功消息
-                    [[NSNotificationCenter defaultCenter] postNotificationName:kChangyanLoginNotification object:self];
-                    
-                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"登陆成功!" preferredStyle:UIAlertControllerStyleAlert];
-                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action){
-                        [self dismissViewControllerAnimated:YES completion:nil];
-                    }];
-                    [alertController addAction:cancelAction];
-                    
-                    [self presentViewController:alertController animated:YES completion:nil];
-                } else {
-                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"登陆失败!" preferredStyle:UIAlertControllerStyleAlert];
-                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action){
-                        [self dismissViewControllerAnimated:YES completion:nil];
-                    }];
-                    [alertController addAction:cancelAction];
-                    
-                    [self presentViewController:alertController animated:YES completion:nil];
-                }
-            }
-     ];
+    [[ChangyanManager sharedInstance].user loginWithUUID:@"33984533" username:@"测试昵称33894533" imageUrl:@"http://sucimg.itc.cn/avatarimg/253473308_1434154914604_c175" success:^(UserManager *user) {
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"登陆成功!" preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action){
+            [self dismissViewControllerAnimated:YES completion:nil];
+        }];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
+    } failure:^(NSError *error) {
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"登陆失败!" preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action){
+            [self dismissViewControllerAnimated:YES completion:nil];
+        }];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
+    }];
 }
 
 - (void)close {
