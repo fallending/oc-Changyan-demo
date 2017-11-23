@@ -19,7 +19,7 @@
 
 @property (nonatomic, strong) _PopupMenu * sgAlertView;
 
-@property (nonatomic, strong) _InputBar *inputBarStyleDefault;
+@property (nonatomic, strong) _InputBar *inputBar;
 
 @end
 
@@ -86,9 +86,16 @@
     
     commentViewBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     commentViewBtn.backgroundColor = [UIColor purpleColor];
-    [commentViewBtn setTitle:@"请再填写评论" forState:UIControlStateNormal];
+    [commentViewBtn setTitle:@"显示 2" forState:UIControlStateNormal];
     commentViewBtn.frame = CGRectMake(110, 500, 120, 40);
-    [commentViewBtn addTarget:self action:@selector(onCommentAgain) forControlEvents:UIControlEventTouchUpInside];
+    [commentViewBtn addTarget:self action:@selector(onCommentShow) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:commentViewBtn];
+    
+    commentViewBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    commentViewBtn.backgroundColor = [UIColor purpleColor];
+    [commentViewBtn setTitle:@"隐藏 2" forState:UIControlStateNormal];
+    commentViewBtn.frame = CGRectMake(210, 500, 120, 40);
+    [commentViewBtn addTarget:self action:@selector(onCommentHide) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:commentViewBtn];
     
 //    __weak typeof(self) weakSelf = self;
@@ -611,15 +618,14 @@
      }];
 }
 
-- (void)onCommentAgain {
+- (void)onCommentShow {
 //    [self.inputBarStyleDefault show];
     
 //    self.sgAlertView = [[_PopupWindow sharedWindow] showView:self.inputBarStyleDefault animation:YES];
     __weak typeof(self) weakSelf = self;
     
-#if 1
-    [_InputBar showWithStyle:_InputBarStyleDefault
-        becomeFirstResponder:YES
+#if 0
+    self.inputBar = [_InputBar showWithStyle:_InputBarStyleDefault
                configuration:^(_InputBar *inputBar) {
         inputBar.maxCount = 200;
         inputBar.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
@@ -653,8 +659,7 @@
         return hideKeyboard;
     }];
 #else
-    [_InputBar showInView:self.view withStyle:_InputBarStyleStill
-     becomeFirstResponder:NO
+    self.inputBar = [_InputBar showInView:self.view withStyle:_InputBarStyleStill
             configuration:^(_InputBar *inputBar) {
         inputBar.maxCount = 200;
         inputBar.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
@@ -676,10 +681,16 @@
             [weakSelf presentViewController:alertController animated:YES completion:nil];
         }];
         
-        return NO;
+        return YES;
     }];
     
 #endif
+}
+
+- (void)onCommentHide {
+    NSLog(@"recognizer = %@", self.view.gestureRecognizers);
+    
+    [self.inputBar hide];
 }
 
 #pragma mark - XHInputViewDelagete

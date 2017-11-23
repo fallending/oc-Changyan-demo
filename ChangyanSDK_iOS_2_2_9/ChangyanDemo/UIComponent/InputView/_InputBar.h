@@ -63,16 +63,14 @@ typedef NS_ENUM(NSInteger, _InputBarStyle) {
 
 @property (nonatomic, copy)     BOOL (^sendBlock)(_InputBar *inputBar, NSString *text);
 
-+ (void)showInView:(UIView *)view
-         withStyle:(_InputBarStyle)style
-becomeFirstResponder:(BOOL)becomeFirstResponder
-     configuration:(void(^)(_InputBar *inputBar))configurationHandler
-              send:(BOOL(^)(_InputBar *inputBar, NSString *text))sendHandler;
++ (instancetype)showInView:(UIView *)view
+                 withStyle:(_InputBarStyle)style
+             configuration:(void(^)(_InputBar *inputBar))configurationHandler
+                      send:(BOOL(^)(_InputBar *inputBar, NSString *text))sendHandler;
 
-+ (void)showWithStyle:(_InputBarStyle)style
-becomeFirstResponder:(BOOL)becomeFirstResponder
-        configuration:(void(^)(_InputBar *inputBar))configurationHandler
-                 send:(BOOL(^)(_InputBar *inputBar, NSString *text))sendHandler;
++ (instancetype)showWithStyle:(_InputBarStyle)style
+                configuration:(void(^)(_InputBar *inputBar))configurationHandler
+                         send:(BOOL(^)(_InputBar *inputBar, NSString *text))sendHandler;
 
 - (void)hide;
 

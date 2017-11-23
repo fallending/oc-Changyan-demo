@@ -23,7 +23,7 @@
 
 #define kStyleDefault_Height 44
 
-static CGFloat keyboardAnimationDuration = 0.5;
+static CGFloat keyboardAnimationDuration = 0.3;
 CGFloat SuperViewHeight = 0.f;
 
 @interface _InputBar() <UITextViewDelegate, UIGestureRecognizerDelegate>
@@ -54,8 +54,7 @@ CGFloat SuperViewHeight = 0.f;
 
 #pragma mark - Public Method
 
-+ (void)showWithStyle:(_InputBarStyle)style
-becomeFirstResponder:(BOOL)becomeFirstResponder
++ (instancetype)showWithStyle:(_InputBarStyle)style
         configuration:(void(^)(_InputBar *inputBar))configurationHandler
                  send:(BOOL(^)(_InputBar *, NSString *text))sendHandler {
     SuperViewHeight = kScreenH;
@@ -63,6 +62,7 @@ becomeFirstResponder:(BOOL)becomeFirstResponder
     CGRect frame = CGRectMake(0, SuperViewHeight - kStyleDefault_Height, kScreenW, kStyleDefault_Height);
     _InputBar *inputBar = [[_InputBar alloc] initWithStyle:style frame:frame];
     UIWindow *window = [UIApplication sharedApplication].delegate.window;
+    
     [window addSubview:inputBar.backgroundView];
     [window addSubview:inputBar];
     
@@ -70,12 +70,13 @@ becomeFirstResponder:(BOOL)becomeFirstResponder
     
     inputBar.sendBlock = [sendHandler copy];
     
-    [inputBar show:becomeFirstResponder];
+    [inputBar show:YES];
+    
+    return inputBar;
 }
 
-+ (void)showInView:(UIView *)view
++ (instancetype)showInView:(UIView *)view
          withStyle:(_InputBarStyle)style
-becomeFirstResponder:(BOOL)becomeFirstResponder
      configuration:(void (^)(_InputBar *))configurationHandler
               send:(BOOL (^)(_InputBar *, NSString *))sendHandler {
     SuperViewHeight = view.frame.size.height;
@@ -83,7 +84,6 @@ becomeFirstResponder:(BOOL)becomeFirstResponder
     CGRect frame = CGRectMake(0, SuperViewHeight - kStyleDefault_Height, kScreenW, kStyleDefault_Height);
     _InputBar *inputBar = [[_InputBar alloc] initWithStyle:style frame:frame];
     
-//    inputBar.backgroundView.userInteractionEnabled = NO;
     [view addSubview:inputBar];
     [view bringSubviewToFront:inputBar];
     
@@ -97,7 +97,9 @@ becomeFirstResponder:(BOOL)becomeFirstResponder
     
     inputBar.sendBlock = [sendHandler copy];
     
-    [inputBar show:becomeFirstResponder];
+    [inputBar show:NO];
+    
+    return inputBar;
 }
 
 - (void)hide {
@@ -135,6 +137,7 @@ becomeFirstResponder:(BOOL)becomeFirstResponder
     [self resetFrameDefault];
     
     if (becomeFirstResponder) {
+        
         [_textView becomeFirstResponder];
         
         // 随键盘动画
@@ -155,7 +158,7 @@ becomeFirstResponder:(BOOL)becomeFirstResponder
     if (self) {
         self.style = style;
         self.backgroundColor = kTextViewHolderBackgroundColor;
-        self.showFrameDefault = frame;
+        self.showFrameDefault = CGRectMake(0, kScreenH, kScreenW, kStyleDefault_Height);
         self.frame = self.showFrameDefault;
         
         [self setupStyleDefaultUI];
@@ -164,6 +167,10 @@ becomeFirstResponder:(BOOL)becomeFirstResponder
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillDisappear:) name:UIKeyboardWillHideNotification object:nil];
     }
     return self;
+}
+
+- (void)dealloc {
+    
 }
 
 #pragma mark - private
@@ -247,11 +254,9 @@ becomeFirstResponder:(BOOL)becomeFirstResponder
 }
 
 - (void)resetFrameDefault {
-//    [UIView animateWithDuration:keyboardAnimationDuration animations:^{
-        self.frame = _showFrameDefault;
-        self.sendButton.frame = _sendButtonFrameDefault;
-        self.textView.frame =_textViewFrameDefault;
-//    } completion:nil];
+        self.frame = self.showFrameDefault;
+        self.sendButton.frame = self.sendButtonFrameDefault;
+        self.textView.frame = self.textViewFrameDefault;
 }
 
 - (void)textViewDidChange:(UITextView *)textView {
