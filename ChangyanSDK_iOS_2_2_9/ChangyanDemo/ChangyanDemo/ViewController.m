@@ -619,9 +619,6 @@
 }
 
 - (void)onCommentShow {
-//    [self.inputBarStyleDefault show];
-    
-//    self.sgAlertView = [[_PopupWindow sharedWindow] showView:self.inputBarStyleDefault animation:YES];
     __weak typeof(self) weakSelf = self;
     
 #if 0
@@ -631,9 +628,6 @@
         inputBar.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
         inputBar.placeholder = @"请输入ddddd...";
     } send:^BOOL(_InputBar *bar, NSString *text) {
-//        [[_PopupWindow sharedWindow] dismissView:weakSelf.sgAlertView Animated:YES];
-//        [bar hide];
-        
         BOOL hideKeyboard = NO;
         
         [[ChangyanManager sharedInstance].topic submitComment:@"58776059" content:text success:^(TopicManager *topic) {
@@ -665,8 +659,6 @@
         inputBar.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
         inputBar.placeholder = @"请输入ddddd...";
     } send:^BOOL(_InputBar *bar, NSString *text) {
-        //        [[_PopupWindow sharedWindow] dismissView:weakSelf.sgAlertView Animated:YES];
-        
         [[ChangyanManager sharedInstance].topic submitComment:@"58776059" content:text success:^(TopicManager *topic) {
             UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"成功" preferredStyle:UIAlertControllerStyleAlert];
             UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
@@ -681,7 +673,7 @@
             [weakSelf presentViewController:alertController animated:YES completion:nil];
         }];
         
-        return YES;
+        return NO;
     }];
     
 #endif
@@ -691,6 +683,7 @@
     NSLog(@"recognizer = %@", self.view.gestureRecognizers);
     
     [self.inputBar hide];
+    self.inputBar = nil;
 }
 
 #pragma mark - XHInputViewDelagete

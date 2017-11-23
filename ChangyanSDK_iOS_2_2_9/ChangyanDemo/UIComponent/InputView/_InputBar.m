@@ -36,8 +36,6 @@ CGFloat SuperViewHeight = 0.f;
 @property (nonatomic, strong) UIView *textBackgroundView;
 @property (nonatomic, strong) UIView *textBackgroundTopBorderView;
 
-@property (nonatomic, strong) UILabel *countLabel;
-
 @property (nonatomic, strong) UILabel *placeholderLabel;
 
 @property (nonatomic, strong) UIButton *sendButton;
@@ -47,6 +45,9 @@ CGFloat SuperViewHeight = 0.f;
 @property (nonatomic, assign) CGRect textViewFrameDefault;
 
 @property (nonatomic, assign) BOOL willHide; // 将要隐藏标志
+
+@property (nonatomic, weak) UIView *viewWithTapRecognizer;
+@property (nonatomic, strong) UITapGestureRecognizer *tapRecognizer;
 
 @end
 
@@ -59,8 +60,7 @@ CGFloat SuperViewHeight = 0.f;
                  send:(BOOL(^)(_InputBar *, NSString *text))sendHandler {
     SuperViewHeight = kScreenH;
     
-    CGRect frame = CGRectMake(0, SuperViewHeight - kStyleDefault_Height, kScreenW, kStyleDefault_Height);
-    _InputBar *inputBar = [[_InputBar alloc] initWithStyle:style frame:frame];
+    _InputBar *inputBar = [[_InputBar alloc] initWithStyle:style];
     UIWindow *window = [UIApplication sharedApplication].delegate.window;
     
     [window addSubview:inputBar.backgroundView];
@@ -81,17 +81,11 @@ CGFloat SuperViewHeight = 0.f;
               send:(BOOL (^)(_InputBar *, NSString *))sendHandler {
     SuperViewHeight = view.frame.size.height;
     
-    CGRect frame = CGRectMake(0, SuperViewHeight - kStyleDefault_Height, kScreenW, kStyleDefault_Height);
-    _InputBar *inputBar = [[_InputBar alloc] initWithStyle:style frame:frame];
+    _InputBar *inputBar = [[_InputBar alloc] initWithStyle:style];
+    [inputBar setBackgroundTapRecogenizer:view];
     
     [view addSubview:inputBar];
     [view bringSubviewToFront:inputBar];
-    
-    {
-        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:inputBar action:@selector(onBackgroundClick:)];
-        tapRecognizer.delegate = inputBar;
-        [view addGestureRecognizer:tapRecognizer];
-    }
     
     if(configurationHandler) configurationHandler(inputBar);
     
@@ -153,7 +147,7 @@ CGFloat SuperViewHeight = 0.f;
 
 #pragma mark -
 
-- (instancetype)initWithStyle:(_InputBarStyle)style frame:(CGRect)frame {
+- (instancetype)initWithStyle:(_InputBarStyle)style {
     self = [super init];
     if (self) {
         self.style = style;
@@ -170,7 +164,10 @@ CGFloat SuperViewHeight = 0.f;
 }
 
 - (void)dealloc {
-    
+    NSLog(@"_InputBar dealloc");
+    NSLog(@"OUT, view = %@, tap = %@", self.viewWithTapRecognizer, self.tapRecognizer);
+    [self.viewWithTapRecognizer removeGestureRecognizer:self.tapRecognizer];
+    self.tapRecognizer = nil;
 }
 
 #pragma mark - private
@@ -214,49 +211,20 @@ CGFloat SuperViewHeight = 0.f;
     }
 }
 
-- (void)setupStyleLargeUI {
-    CGFloat sendButtonWidth = 58;
-    CGFloat sendButtonHeight = 29;
-    _sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _sendButton.frame = CGRectMake(kScreenW - kStyleLarge_LRSpace - sendButtonWidth, self.frame.size.height - kStyleLarge_TBSpace - sendButtonHeight, sendButtonWidth, sendButtonHeight);
-    _sendButton.backgroundColor = [UIColor blueColor];
-    [_sendButton setTitleColor:kSendButtonNormalTitleColor forState:UIControlStateNormal];
-    [_sendButton setTitleColor:kSendButtonDisableTitleColor forState:UIControlStateDisabled];
-    [_sendButton setTitle:@"发送" forState:UIControlStateNormal];
-    _sendButton.titleLabel.font = [UIFont systemFontOfSize:13];
-    _sendButton.layer.cornerRadius = 1.5;
-    [_sendButton addTarget:self action:@selector(onSend:) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:_sendButton];
-    
-    self.textBackgroundView = [[UIView alloc] initWithFrame:CGRectMake(kStyleLarge_LRSpace, kStyleLarge_TBSpace, kScreenW-2*kStyleLarge_LRSpace, CGRectGetMinY(_sendButton.frame)-2*kStyleLarge_TBSpace)];
-    self.textBackgroundView.backgroundColor = [UIColor groupTableViewBackgroundColor];
-    [self addSubview:self.textBackgroundView];
-    
-    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, self.textBackgroundView.bounds.size.width, self.textBackgroundView.bounds.size.height-kCountLabHeight)];
-    self.textView.backgroundColor = [UIColor clearColor];
-    self.textView.font = [UIFont systemFontOfSize:15];
-    self.textView.delegate = self;
-    self.textView.layer.cornerRadius = kTextViewCornerRadius;
-    [self.textBackgroundView addSubview:self.textView];
-    
-    self.placeholderLabel = [[UILabel alloc] initWithFrame:CGRectMake(7, 0, self.textView.bounds.size.width-14, 35)];
-    self.placeholderLabel.font = _textView.font;
-    self.placeholderLabel.text = @"请输入...";
-    self.placeholderLabel.textColor = [UIColor lightGrayColor];
-    [_textView addSubview:self.placeholderLabel];
-    
-    self.countLabel = [[UILabel alloc] initWithFrame:CGRectMake(0,_textView.bounds.size.height, self.textBackgroundView.bounds.size.width-5, kCountLabHeight)];
-    self.countLabel.font = [UIFont systemFontOfSize:14];
-    self.countLabel.textColor =  [UIColor lightGrayColor];
-    self.countLabel.textAlignment = NSTextAlignmentRight;
-    self.countLabel.backgroundColor = _textView.backgroundColor;
-    [self.textBackgroundView addSubview:self.countLabel];
-}
-
 - (void)resetFrameDefault {
         self.frame = self.showFrameDefault;
         self.sendButton.frame = self.sendButtonFrameDefault;
         self.textView.frame = self.textViewFrameDefault;
+}
+
+- (void)setBackgroundTapRecogenizer:(UIView *)view {
+    self.tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onBackgroundClick:)];
+    self.tapRecognizer.delegate = self;
+    [view addGestureRecognizer:self.tapRecognizer];
+    
+    self.viewWithTapRecognizer = view;
+    
+    NSLog(@"IN, view = %@, tap = %@", self.viewWithTapRecognizer, self.tapRecognizer);
 }
 
 - (void)textViewDidChange:(UITextView *)textView {
@@ -398,8 +366,6 @@ CGFloat SuperViewHeight = 0.f;
 
 - (void)setMaxCount:(NSInteger)maxCount {
     _maxCount = maxCount;
-    
-    self.countLabel.text = [NSString stringWithFormat:@"0/%ld",(long)maxCount];
 }
 
 - (void)setTextViewBackgroundColor:(UIColor *)textViewBackgroundColor {
@@ -426,7 +392,6 @@ CGFloat SuperViewHeight = 0.f;
     placeholderColor = placeholderColor;
     
     self.placeholderLabel.textColor = placeholderColor;
-    self.countLabel.textColor = placeholderColor;
 }
 
 - (void)setSendButtonBackgroundColor:(UIColor *)sendButtonBackgroundColor {
@@ -458,9 +423,7 @@ CGFloat SuperViewHeight = 0.f;
         _backgroundView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
         _backgroundView.backgroundColor = [UIColor clearColor];
         
-        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onBackgroundClick:)];
-        tap.delegate = self;
-        [_backgroundView addGestureRecognizer:tap];
+        [self setBackgroundTapRecogenizer:_backgroundView];
     }
     return _backgroundView;
 }
@@ -489,7 +452,9 @@ CGFloat SuperViewHeight = 0.f;
         frame.origin.y = SuperViewHeight;
         self.frame = frame;
     } completion:^(BOOL finished) {
-        [self.backgroundView removeFromSuperview];
+        if (self.style == _InputBarStyleDefault) {
+            [self.backgroundView removeFromSuperview];
+        }
         
         [self removeFromSuperview];
     }];
