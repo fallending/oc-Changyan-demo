@@ -135,7 +135,7 @@ CGFloat SuperViewHeight = 0.f;
     [self.sendButton setTitleColor:kSendButtonNormalTitleColor forState:UIControlStateNormal];
     [self.sendButton setTitleColor:kSendButtonDisableTitleColor forState:UIControlStateDisabled];
     [self.sendButton setTitle:@"发送" forState:UIControlStateNormal];
-    [self.sendButton addTarget:self action:@selector(onSend:) forControlEvents:UIControlEventTouchUpInside];
+    [self.sendButton addTarget:self action:@selector(onSend_FixMultiClick) forControlEvents:UIControlEventTouchUpInside];
     self.sendButton.titleLabel.font = [UIFont systemFontOfSize:15];
     [self addSubview:self.sendButton];
     
@@ -249,9 +249,18 @@ CGFloat SuperViewHeight = 0.f;
 
 - (void)textViewDidChange:(UITextView *)textView {
     if(textView.text.length) {
+        // 隐藏占位字符
         self.placeholderLabel.hidden = YES;
+        
+        // 将发送按钮置为有效
+        self.sendButton.enabled = YES;
     } else {
+        
+        // 显示占位字符
         self.placeholderLabel.hidden = NO;
+        
+        // 将发送按钮置为无效
+        self.sendButton.enabled = NO;
     }
     
     if(_maxCount > 0) {
@@ -319,7 +328,7 @@ CGFloat SuperViewHeight = 0.f;
     }
 }
 
-- (void)onSend:(UIButton *)button {
+- (void)onSend {
     
     if (self.sendBlock) {
         BOOL hideKeyBoard = self.sendBlock(self, self.textView.text);
@@ -333,6 +342,15 @@ CGFloat SuperViewHeight = 0.f;
             }
         }
     }
+}
+
+- (void)onSend_FixMultiClick {
+    
+    NSLog(@"onsend");
+    
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(onSend) object:nil];
+    
+    [self performSelector:@selector(onSend) withObject:nil afterDelay:0.3];
 }
 
 #pragma mark - 监听键盘
@@ -449,8 +467,6 @@ CGFloat SuperViewHeight = 0.f;
     if(!_backgroundView){
         _backgroundView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
         _backgroundView.backgroundColor = [UIColor clearColor];
-        
-//        [self setBackgroundTapRecogenizer:_backgroundView];
     }
     return _backgroundView;
 }
@@ -465,10 +481,6 @@ CGFloat SuperViewHeight = 0.f;
 
 - (void)animateShow {
     [UIView animateWithDuration:keyboardAnimationDuration animations:^{
-//        self.frame = self.showFrameDefault;
-//        self.sendButton.frame = _sendButtonFrameDefault;
-//        self.textView.frame =_textViewFrameDefault;
-        
         [self pinToBottom];
     } completion:nil];
 }
@@ -483,7 +495,7 @@ CGFloat SuperViewHeight = 0.f;
             [self.backgroundView removeFromSuperview];
         }
         
-//        [self removeFromSuperview];
+        [self removeFromSuperview];
     }];
 }
 
