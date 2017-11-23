@@ -621,8 +621,8 @@
 - (void)onCommentShow {
     __weak typeof(self) weakSelf = self;
     
-#if 0
-    self.inputBar = [_InputBar showWithStyle:_InputBarStyleDefault
+#if 1
+    self.inputBar = [_InputBar showWithStyle:_InputBarStyleStill
                configuration:^(_InputBar *inputBar) {
         inputBar.maxCount = 200;
         inputBar.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
@@ -634,7 +634,7 @@
             
             [bar clear];
             
-            if (hideKeyboard)
+//            if (hideKeyboard)
             {
                 UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"成功" preferredStyle:UIAlertControllerStyleAlert];
                 UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];

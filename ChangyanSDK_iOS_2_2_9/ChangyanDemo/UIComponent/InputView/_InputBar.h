@@ -5,11 +5,11 @@
 
 typedef NS_ENUM(NSInteger, _InputBarStyle) {
     /**
-     * 普通模式：随键盘弹起，而显示；随键盘收起，而隐藏。
+     * 普通模式：随键盘弹起，而显示；随键盘收起，而隐藏。【跟随输入框焦点】
      */
     _InputBarStyleDefault,
     /**
-     * 停留模式：手动控制 显示、隐藏；显示的时候，常驻在屏幕下方。
+     * 停留模式：手动控制 显示、隐藏；显示的时候，常驻在屏幕下方。【手动控制】
      */
     _InputBarStyleStill,
 };
@@ -73,6 +73,8 @@ typedef NS_ENUM(NSInteger, _InputBarStyle) {
                          send:(BOOL(^)(_InputBar *inputBar, NSString *text))sendHandler;
 
 - (void)hide;
+
+- (void)toggleFirstResponder:(BOOL)toFirstResponder;
 
 - (void)clear;
 

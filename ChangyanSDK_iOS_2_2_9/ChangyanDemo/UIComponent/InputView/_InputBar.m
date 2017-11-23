@@ -112,6 +112,14 @@ CGFloat SuperViewHeight = 0.f;
     }
 }
 
+- (void)toggleFirstResponder:(BOOL)toFirstResponder {
+    if (toFirstResponder) {
+        [self.textView becomeFirstResponder];
+    } else {
+        [self.textView resignFirstResponder];
+    }
+}
+
 - (void)clear {
     self.textView.text = nil;
     
@@ -218,6 +226,14 @@ CGFloat SuperViewHeight = 0.f;
 }
 
 - (void)setBackgroundTapRecogenizer:(UIView *)view {
+    if (!view &&
+        self.viewWithTapRecognizer &&
+        self.tapRecognizer) {
+        
+        [self.viewWithTapRecognizer removeGestureRecognizer:self.tapRecognizer];
+        return;
+    }
+    
     self.tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onBackgroundClick:)];
     self.tapRecognizer.delegate = self;
     [view addGestureRecognizer:self.tapRecognizer];
@@ -423,7 +439,7 @@ CGFloat SuperViewHeight = 0.f;
         _backgroundView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
         _backgroundView.backgroundColor = [UIColor clearColor];
         
-        [self setBackgroundTapRecogenizer:_backgroundView];
+//        [self setBackgroundTapRecogenizer:_backgroundView];
     }
     return _backgroundView;
 }
@@ -456,7 +472,7 @@ CGFloat SuperViewHeight = 0.f;
             [self.backgroundView removeFromSuperview];
         }
         
-        [self removeFromSuperview];
+//        [self removeFromSuperview];
     }];
 }
 
