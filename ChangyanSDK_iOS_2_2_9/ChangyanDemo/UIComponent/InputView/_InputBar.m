@@ -24,6 +24,7 @@
 #define kStyleDefault_Height 44
 
 static CGFloat keyboardAnimationDuration = 0.5;
+CGFloat SuperViewHeight = 0.f;
 
 @interface _InputBar() <UITextViewDelegate, UIGestureRecognizerDelegate>
 
@@ -54,37 +55,49 @@ static CGFloat keyboardAnimationDuration = 0.5;
 #pragma mark - Public Method
 
 + (void)showWithStyle:(_InputBarStyle)style
+becomeFirstResponder:(BOOL)becomeFirstResponder
         configuration:(void(^)(_InputBar *inputBar))configurationHandler
-                 send:(BOOL(^)(NSString *text))sendHandler {
-    _InputBar *inputBar = [[_InputBar alloc] initWithStyle:style];
+                 send:(BOOL(^)(_InputBar *, NSString *text))sendHandler {
+    SuperViewHeight = kScreenH;
+    
+    CGRect frame = CGRectMake(0, SuperViewHeight - kStyleDefault_Height, kScreenW, kStyleDefault_Height);
+    _InputBar *inputBar = [[_InputBar alloc] initWithStyle:style frame:frame];
     UIWindow *window = [UIApplication sharedApplication].delegate.window;
     [window addSubview:inputBar.backgroundView];
     [window addSubview:inputBar];
     
     if(configurationHandler) configurationHandler(inputBar);
     
-    inputBar.sendBlcok = [sendHandler copy];
+    inputBar.sendBlock = [sendHandler copy];
     
-    [inputBar show];
+    [inputBar show:becomeFirstResponder];
 }
 
 + (void)showInView:(UIView *)view
          withStyle:(_InputBarStyle)style
+becomeFirstResponder:(BOOL)becomeFirstResponder
      configuration:(void (^)(_InputBar *))configurationHandler
-              send:(BOOL (^)(NSString *))sendHandler {
-    _InputBar *inputBar = [[_InputBar alloc] initWithStyle:style];
+              send:(BOOL (^)(_InputBar *, NSString *))sendHandler {
+    SuperViewHeight = view.frame.size.height;
     
+    CGRect frame = CGRectMake(0, SuperViewHeight - kStyleDefault_Height, kScreenW, kStyleDefault_Height);
+    _InputBar *inputBar = [[_InputBar alloc] initWithStyle:style frame:frame];
+    
+//    inputBar.backgroundView.userInteractionEnabled = NO;
     [view addSubview:inputBar];
+    [view bringSubviewToFront:inputBar];
     
     {
-        
+        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:inputBar action:@selector(onBackgroundClick:)];
+        tapRecognizer.delegate = inputBar;
+        [view addGestureRecognizer:tapRecognizer];
     }
     
     if(configurationHandler) configurationHandler(inputBar);
     
-    inputBar.sendBlcok = [sendHandler copy];
+    inputBar.sendBlock = [sendHandler copy];
     
-    [inputBar show];
+    [inputBar show:becomeFirstResponder];
 }
 
 - (void)hide {
@@ -105,20 +118,30 @@ static CGFloat keyboardAnimationDuration = 0.5;
 
 - (void)clear {
     self.textView.text = nil;
+    
+    [self textViewDidChange:self.textView];
 }
 
 #pragma mark -
 
-- (void)show {
+- (void)show:(BOOL)becomeFirstResponder {
     if([self.delegate respondsToSelector:@selector(willShow:)]){
         [self.delegate willShow:self];
     }
     
     _textView.text = nil;
     _placeholderLabel.hidden = NO;
-    [_textView becomeFirstResponder];
     
     [self resetFrameDefault];
+    
+    if (becomeFirstResponder) {
+        [_textView becomeFirstResponder];
+        
+        // 随键盘动画
+    } else {
+        // 仅仅：底部弹出动画
+        [self animateShow];
+    }
 }
 
 - (NSNumber *)preferredHeight { // 加入 UIView 的 类别协议
@@ -127,13 +150,13 @@ static CGFloat keyboardAnimationDuration = 0.5;
 
 #pragma mark -
 
-- (instancetype)initWithStyle:(_InputBarStyle)style {
+- (instancetype)initWithStyle:(_InputBarStyle)style frame:(CGRect)frame {
     self = [super init];
     if (self) {
         self.style = style;
         self.backgroundColor = kTextViewHolderBackgroundColor;
-    
-        self.frame = CGRectMake(0, kScreenH - kStyleDefault_Height, kScreenW, kStyleDefault_Height);
+        self.showFrameDefault = frame;
+        self.frame = self.showFrameDefault;
         
         [self setupStyleDefaultUI];
         
@@ -224,9 +247,11 @@ static CGFloat keyboardAnimationDuration = 0.5;
 }
 
 - (void)resetFrameDefault {
-    self.frame = _showFrameDefault;
-    self.sendButton.frame = _sendButtonFrameDefault;
-    self.textView.frame =_textViewFrameDefault;
+//    [UIView animateWithDuration:keyboardAnimationDuration animations:^{
+        self.frame = _showFrameDefault;
+        self.sendButton.frame = _sendButtonFrameDefault;
+        self.textView.frame =_textViewFrameDefault;
+//    } completion:nil];
 }
 
 - (void)textViewDidChange:(UITextView *)textView {
@@ -254,7 +279,7 @@ static CGFloat keyboardAnimationDuration = 0.5;
         if(height >= heightDefault){
             [UIView animateWithDuration:0.3 animations:^{
                 //调整frame
-                CGRect frame = _showFrameDefault;
+                CGRect frame = self.showFrameDefault;
                 frame.size.height = height;
                 frame.origin.y = _showFrameDefault.origin.y - (height - _showFrameDefault.size.height);
                 self.frame = frame;
@@ -272,20 +297,6 @@ static CGFloat keyboardAnimationDuration = 0.5;
         }
     }
     
-}
-
-#pragma mark - lazy
-
-- (UIView *)backgroundView {
-    if(!_backgroundView){
-        _backgroundView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
-        _backgroundView.backgroundColor = [UIColor clearColor];
-        
-        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onBackgroundClick:)];
-        tap.delegate = self;
-        [_backgroundView addGestureRecognizer:tap];
-    }
-    return _backgroundView;
 }
 
 #pragma mark - UIGestureRecognizerDelegate
@@ -323,17 +334,19 @@ static CGFloat keyboardAnimationDuration = 0.5;
 
 - (void)onSend:(UIButton *)button {
     
-    if(self.sendBlcok) {
-        BOOL hideKeyBoard = self.sendBlcok(self.textView.text);
+    if (self.sendBlock) {
+        BOOL hideKeyBoard = self.sendBlock(self, self.textView.text);
         
-        if (hideKeyBoard){
+        if (hideKeyBoard) {
             [self.textView resignFirstResponder];
+            
+            // 停留模式：发送后，回到底部
+            if (self.style == _InputBarStyleStill) {
+                [self pinToBottom];
+            }
         }
         
-        // 停留模式：发送后，回到底部
-        if (self.style == _InputBarStyleStill) {
-            [self pinToBottom];
-        }
+        
     }
 }
 
@@ -345,12 +358,12 @@ static CGFloat keyboardAnimationDuration = 0.5;
         NSDictionary *info = [noti userInfo];
         NSValue *value = [info objectForKey:UIKeyboardFrameEndUserInfoKey];
         keyboardAnimationDuration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
+        
         CGSize keyboardSize = [value CGRectValue].size;
-        NSLog(@"keyboardSize.height = %f",keyboardSize.height);
         
         [UIView animateWithDuration:keyboardAnimationDuration animations:^{
             CGRect frame = self.frame;
-            frame.origin.y = kScreenH - keyboardSize.height - frame.size.height;
+            frame.origin.y = SuperViewHeight - keyboardSize.height - frame.size.height;
             self.frame = frame;
             
             self.showFrameDefault = self.frame;
@@ -373,7 +386,7 @@ static CGFloat keyboardAnimationDuration = 0.5;
     }
 }
 
-#pragma mark - Setter
+#pragma mark - Setter & Getter
 
 - (void)setMaxCount:(NSInteger)maxCount {
     _maxCount = maxCount;
@@ -432,20 +445,41 @@ static CGFloat keyboardAnimationDuration = 0.5;
     self.sendButton.titleLabel.font = sendButtonFont;
 }
 
+- (UIView *)backgroundView {
+    if(!_backgroundView){
+        _backgroundView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        _backgroundView.backgroundColor = [UIColor clearColor];
+        
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onBackgroundClick:)];
+        tap.delegate = self;
+        [_backgroundView addGestureRecognizer:tap];
+    }
+    return _backgroundView;
+}
+
 #pragma mark - Utility
 
 - (void)pinToBottom {
     CGRect frame = self.frame;
-    frame.origin.y = kScreenH - self.frame.size.height;
+    frame.origin.y = SuperViewHeight - self.frame.size.height;
     self.frame = frame;
+}
+
+- (void)animateShow {
+    [UIView animateWithDuration:keyboardAnimationDuration animations:^{
+//        self.frame = self.showFrameDefault;
+//        self.sendButton.frame = _sendButtonFrameDefault;
+//        self.textView.frame =_textViewFrameDefault;
+        
+        [self pinToBottom];
+    } completion:nil];
 }
 
 - (void)animateHide {
     [UIView animateWithDuration:keyboardAnimationDuration animations:^{
         CGRect frame = self.frame;
-        frame.origin.y = kScreenH;
+        frame.origin.y = SuperViewHeight;
         self.frame = frame;
-        self.backgroundView.backgroundColor = [UIColor clearColor];
     } completion:^(BOOL finished) {
         [self.backgroundView removeFromSuperview];
         

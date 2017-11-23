@@ -61,16 +61,18 @@ typedef NS_ENUM(NSInteger, _InputBarStyle) {
 @property (nonatomic, assign)   CGFloat sendButtonCornerRadius;
 @property (nonatomic, strong)   UIFont *sendButtonFont;
 
-@property (nonatomic, copy)     BOOL (^sendBlcok)(NSString *text);
+@property (nonatomic, copy)     BOOL (^sendBlock)(_InputBar *inputBar, NSString *text);
 
 + (void)showInView:(UIView *)view
          withStyle:(_InputBarStyle)style
+becomeFirstResponder:(BOOL)becomeFirstResponder
      configuration:(void(^)(_InputBar *inputBar))configurationHandler
-              send:(BOOL(^)(NSString *text))sendHandler;
+              send:(BOOL(^)(_InputBar *inputBar, NSString *text))sendHandler;
 
 + (void)showWithStyle:(_InputBarStyle)style
+becomeFirstResponder:(BOOL)becomeFirstResponder
         configuration:(void(^)(_InputBar *inputBar))configurationHandler
-                 send:(BOOL(^)(NSString *text))sendHandler;
+                 send:(BOOL(^)(_InputBar *inputBar, NSString *text))sendHandler;
 
 - (void)hide;
 

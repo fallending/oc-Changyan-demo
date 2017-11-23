@@ -617,12 +617,49 @@
 //    self.sgAlertView = [[_PopupWindow sharedWindow] showView:self.inputBarStyleDefault animation:YES];
     __weak typeof(self) weakSelf = self;
     
-    [_InputBar showWithStyle:_InputBarStyleStill configuration:^(_InputBar *inputBar) {
+#if 1
+    [_InputBar showWithStyle:_InputBarStyleStill
+        becomeFirstResponder:YES
+               configuration:^(_InputBar *inputBar) {
         inputBar.maxCount = 200;
         inputBar.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
         inputBar.placeholder = @"请输入ddddd...";
-    } send:^BOOL(NSString *text) {
+    } send:^BOOL(_InputBar *bar, NSString *text) {
 //        [[_PopupWindow sharedWindow] dismissView:weakSelf.sgAlertView Animated:YES];
+//        [bar hide];
+        
+        BOOL hideKeyboard = NO;
+        
+        [[ChangyanManager sharedInstance].topic submitComment:@"58776059" content:text success:^(TopicManager *topic) {
+            
+            [bar clear];
+            
+            if (hideKeyboard) {
+                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"成功" preferredStyle:UIAlertControllerStyleAlert];
+                UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+                [alertController addAction:cancelAction];
+
+                [weakSelf presentViewController:alertController animated:YES completion:nil];
+            }
+        } failure:^(NSError *error) {
+            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"失败" preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+            [alertController addAction:cancelAction];
+
+            [weakSelf presentViewController:alertController animated:YES completion:nil];
+        }];
+
+        return hideKeyboard;
+    }];
+#else
+    [_InputBar showInView:self.view withStyle:_InputBarStyleStill
+     becomeFirstResponder:NO
+            configuration:^(_InputBar *inputBar) {
+        inputBar.maxCount = 200;
+        inputBar.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
+        inputBar.placeholder = @"请输入ddddd...";
+    } send:^BOOL(_InputBar *bar, NSString *text) {
+        //        [[_PopupWindow sharedWindow] dismissView:weakSelf.sgAlertView Animated:YES];
         
         [[ChangyanManager sharedInstance].topic submitComment:@"58776059" content:text success:^(TopicManager *topic) {
             UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"成功" preferredStyle:UIAlertControllerStyleAlert];
@@ -638,8 +675,10 @@
             [weakSelf presentViewController:alertController animated:YES completion:nil];
         }];
         
-        return YES;
+        return NO;
     }];
+    
+#endif
 }
 
 #pragma mark - XHInputViewDelagete
