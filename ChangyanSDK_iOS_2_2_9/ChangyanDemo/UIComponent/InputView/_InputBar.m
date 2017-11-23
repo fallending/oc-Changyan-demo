@@ -53,7 +53,7 @@ CGFloat SuperViewHeight = 0.f;
 
 @implementation _InputBar
 
-#pragma mark - Public Method
+#pragma mark - 公有方法
 
 + (instancetype)showWithStyle:(_InputBarStyle)style
         configuration:(void(^)(_InputBar *inputBar))configurationHandler
@@ -127,60 +127,7 @@ CGFloat SuperViewHeight = 0.f;
 }
 
 #pragma mark -
-
-- (void)show:(BOOL)becomeFirstResponder {
-    if([self.delegate respondsToSelector:@selector(willShow:)]){
-        [self.delegate willShow:self];
-    }
-    
-    _textView.text = nil;
-    _placeholderLabel.hidden = NO;
-    
-    [self resetFrameDefault];
-    
-    if (becomeFirstResponder) {
-        
-        [_textView becomeFirstResponder];
-        
-        // 随键盘动画
-    } else {
-        // 仅仅：底部弹出动画
-        [self animateShow];
-    }
-}
-
-- (NSNumber *)preferredHeight { // 加入 UIView 的 类别协议
-    return @(kStyleDefault_Height);
-}
-
-#pragma mark -
-
-- (instancetype)initWithStyle:(_InputBarStyle)style {
-    self = [super init];
-    if (self) {
-        self.style = style;
-        self.backgroundColor = kTextViewHolderBackgroundColor;
-        self.showFrameDefault = CGRectMake(0, kScreenH, kScreenW, kStyleDefault_Height);
-        self.frame = self.showFrameDefault;
-        
-        [self setupStyleDefaultUI];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillAppear:) name:UIKeyboardWillShowNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillDisappear:) name:UIKeyboardWillHideNotification object:nil];
-    }
-    return self;
-}
-
-- (void)dealloc {
-    NSLog(@"_InputBar dealloc");
-    NSLog(@"OUT, view = %@, tap = %@", self.viewWithTapRecognizer, self.tapRecognizer);
-    [self.viewWithTapRecognizer removeGestureRecognizer:self.tapRecognizer];
-    self.tapRecognizer = nil;
-}
-
-#pragma mark - private
-
-- (void)setupStyleDefaultUI {
+- (void)initUI {
     CGFloat sendButtonWidth = 45;
     CGFloat sendButtonHeight = self.bounds.size.height -2*kStyleDefault_TBSpace;
     self.sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -219,6 +166,55 @@ CGFloat SuperViewHeight = 0.f;
     }
 }
 
+- (instancetype)initWithStyle:(_InputBarStyle)style {
+    self = [super init];
+    if (self) {
+        self.style = style;
+        self.backgroundColor = kTextViewHolderBackgroundColor;
+        self.showFrameDefault = CGRectMake(0, kScreenH, kScreenW, kStyleDefault_Height);
+        self.frame = self.showFrameDefault;
+        
+        [self initUI];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillAppear:) name:UIKeyboardWillShowNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillDisappear:) name:UIKeyboardWillHideNotification object:nil];
+    }
+    return self;
+}
+
+- (void)dealloc {
+    NSLog(@"_InputBar dealloc");
+    NSLog(@"OUT, view = %@, tap = %@", self.viewWithTapRecognizer, self.tapRecognizer);
+    [self setBackgroundTapRecogenizer:nil];
+}
+
+#pragma mark - 私有方法
+
+- (void)show:(BOOL)becomeFirstResponder {
+    if([self.delegate respondsToSelector:@selector(willShow:)]){
+        [self.delegate willShow:self];
+    }
+    
+    _textView.text = nil;
+    _placeholderLabel.hidden = NO;
+    
+    [self resetFrameDefault];
+    
+    if (becomeFirstResponder) {
+        
+        [_textView becomeFirstResponder];
+        
+        // 随键盘动画
+    } else {
+        // 仅仅：底部弹出动画
+        [self animateShow];
+    }
+}
+
+- (NSNumber *)preferredHeight { // 加入 UIView 的 类别协议
+    return @(kStyleDefault_Height);
+}
+
 - (void)resetFrameDefault {
         self.frame = self.showFrameDefault;
         self.sendButton.frame = self.sendButtonFrameDefault;
@@ -231,8 +227,14 @@ CGFloat SuperViewHeight = 0.f;
         self.tapRecognizer) {
         
         [self.viewWithTapRecognizer removeGestureRecognizer:self.tapRecognizer];
+        
+        self.viewWithTapRecognizer = nil;
+        self.tapRecognizer = nil;
+        
         return;
     }
+    
+    view.userInteractionEnabled = YES;
     
     self.tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onBackgroundClick:)];
     self.tapRecognizer.delegate = self;
@@ -242,6 +244,8 @@ CGFloat SuperViewHeight = 0.f;
     
     NSLog(@"IN, view = %@, tap = %@", self.viewWithTapRecognizer, self.tapRecognizer);
 }
+
+#pragma mark - UITextViewDelegate
 
 - (void)textViewDidChange:(UITextView *)textView {
     if(textView.text.length) {
@@ -254,14 +258,8 @@ CGFloat SuperViewHeight = 0.f;
         if(textView.text.length>=_maxCount){
             textView.text = [textView.text substringToIndex:_maxCount];
         }
-        
-        // 更新字数提示
-//        if(_style == _InputBarStyleLarge){
-//            _countLab.text = [NSString stringWithFormat:@"%ld/%ld",(long)textView.text.length,(long)_maxCount];
-//        }
     }
     
-//    if(_style == _InputBarStyleDefault)
     {
         CGFloat height = [self string:textView.text heightWithFont:textView.font constrainedToWidth:textView.bounds.size.width] + 2*kStyleDefault_TBSpace;
         CGFloat heightDefault = kStyleDefault_Height;
@@ -306,7 +304,7 @@ CGFloat SuperViewHeight = 0.f;
     return NO;
 }
 
-#pragma mark - Action
+#pragma mark - 点击事件处理
 
 - (void)onBackgroundClick:(UITapGestureRecognizer *)sender {
     if (self.style == _InputBarStyleDefault) {
@@ -348,6 +346,12 @@ CGFloat SuperViewHeight = 0.f;
         
         CGSize keyboardSize = [value CGRectValue].size;
         
+        // FIXME: 特殊处理：当在【停留模式】的时候，自定义背景视图的时候，在键盘弹出的时候，添加手势；在键盘收起的时候，移除手势。【冲突点】停留模式下，弹出系统Alert视图，Alert的按钮点击，会被背景视图的手势截获。
+        if (self.style == _InputBarStyleStill &&
+            _backgroundView) {
+            [self setBackgroundTapRecogenizer:_backgroundView];
+        }
+        
         [UIView animateWithDuration:keyboardAnimationDuration animations:^{
             CGRect frame = self.frame;
             frame.origin.y = SuperViewHeight - keyboardSize.height - frame.size.height;
@@ -374,6 +378,13 @@ CGFloat SuperViewHeight = 0.f;
             [self animateHide];
         } else if (self.style == _InputBarStyleStill) {
             [self pinToBottom];
+            
+            // FIXME: 特殊处理：当在【停留模式】的时候，自定义背景视图的时候，在键盘弹出的时候，添加手势；在键盘收起的时候，移除手势。【冲突点】停留模式下，弹出系统Alert视图，Alert的按钮点击，会被背景视图的手势截获。
+            if (_backgroundView) {
+                [self setBackgroundTapRecogenizer:nil];
+                
+                _backgroundView.userInteractionEnabled = NO;
+            }
         }
     }
 }
