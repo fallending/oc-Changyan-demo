@@ -91,30 +91,7 @@
     [commentViewBtn addTarget:self action:@selector(onCommentAgain) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:commentViewBtn];
     
-    __weak typeof(self) weakSelf = self;
-    
-    self.inputBarStyleDefault = [self inputViewWithStyle:_InputBarStyleDefault];
-    self.inputBarStyleDefault.delegate = self;
-    [self.view addSubview:self.inputBarStyleDefault];
-    /** 发送按钮点击事件 */
-    self.inputBarStyleDefault.sendBlcok = ^(NSString *text) {
-//        [weakSelf.inputBarStyleDefault hide];//隐藏输入框
-        [[_PopupWindow sharedWindow] dismissView:weakSelf.sgAlertView Animated:YES];
-        
-        [[ChangyanManager sharedInstance].topic submitComment:@"58776059" content:text success:^(TopicManager *topic) {
-            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"成功" preferredStyle:UIAlertControllerStyleAlert];
-            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
-            [alertController addAction:cancelAction];
-            
-            [weakSelf presentViewController:alertController animated:YES completion:nil];
-        } failure:^(NSError *error) {
-            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"失败" preferredStyle:UIAlertControllerStyleAlert];
-            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
-            [alertController addAction:cancelAction];
-            
-            [weakSelf presentViewController:alertController animated:YES completion:nil];
-        }];
-    };
+//    __weak typeof(self) weakSelf = self;
     
     /////////////////////////////////////////////
     
@@ -637,7 +614,32 @@
 - (void)onCommentAgain {
 //    [self.inputBarStyleDefault show];
     
-    self.sgAlertView = [[_PopupWindow sharedWindow] showView:self.inputBarStyleDefault animation:YES];
+//    self.sgAlertView = [[_PopupWindow sharedWindow] showView:self.inputBarStyleDefault animation:YES];
+    __weak typeof(self) weakSelf = self;
+    
+    [_InputBar showWithStyle:_InputBarStyleStill configuration:^(_InputBar *inputBar) {
+        inputBar.maxCount = 200;
+        inputBar.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
+        inputBar.placeholder = @"请输入ddddd...";
+    } send:^BOOL(NSString *text) {
+//        [[_PopupWindow sharedWindow] dismissView:weakSelf.sgAlertView Animated:YES];
+        
+        [[ChangyanManager sharedInstance].topic submitComment:@"58776059" content:text success:^(TopicManager *topic) {
+            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"成功" preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+            [alertController addAction:cancelAction];
+            
+            [weakSelf presentViewController:alertController animated:YES completion:nil];
+        } failure:^(NSError *error) {
+            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"失败" preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+            [alertController addAction:cancelAction];
+            
+            [weakSelf presentViewController:alertController animated:YES completion:nil];
+        }];
+        
+        return YES;
+    }];
 }
 
 #pragma mark - XHInputViewDelagete
@@ -651,54 +653,13 @@
     
 }
 
-- (void)inputBarWillHide:(_InputBar *)inputView{
+- (void)inputBarWillHide:(_InputBar *)inputView {
     
     /*
      //如果你工程中有配置IQKeyboardManager,并对XHInputView造成影响,请在XHInputView将要影藏时将其打开
      [IQKeyboardManager sharedManager].enableAutoToolbar = YES;
      [IQKeyboardManager sharedManager].enable = YES;
      */
-}
-
-#pragma mark -
-
-#define XHInputView_ScreenW    [UIScreen mainScreen].bounds.size.width
-#define XHInputView_ScreenH    [UIScreen mainScreen].bounds.size.height
-
-- (_InputBar *)inputViewWithStyle:(_InputBarStyle)style {
-    
-    _InputBar *inputView = [[_InputBar alloc] initWithStyle:style];
-    inputView.frame = CGRectMake(0, XHInputView_ScreenH-50, XHInputView_ScreenW, 50);
-    //设置最大输入字数
-    inputView.maxCount = 50;
-    //输入框颜色
-    inputView.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
-    //占位符
-    inputView.placeholder = @"请输入...";
-
-    return inputView;
-    
-    //XHInputView 支持一下属性设置,详见XHInputView.h文件
-    
-    //    /** 最大输入字数 */
-    //    @property (nonatomic, assign) NSInteger maxCount;
-    //    /** 字体 */
-    //    @property (nonatomic, strong) UIFont * font;
-    //    /** 占位符 */
-    //    @property (nonatomic, copy) NSString *placeholder;
-    //    /** 占位符颜色 */
-    //    @property (nonatomic, strong) UIColor *placeholderColor;
-    //    /** 输入框背景颜色 */
-    //    @property (nonatomic, strong) UIColor* textViewBackgroundColor;
-    //    /** 发送按钮背景色 */
-    //    @property (nonatomic, strong) UIColor *sendButtonBackgroundColor;
-    //    /** 发送按钮Title */
-    //    @property (nonatomic, copy) NSString *sendButtonTitle;
-    //    /** 发送按钮圆角大小 */
-    //    @property (nonatomic, assign) CGFloat sendButtonCornerRadius;
-    //    /** 发送按钮字体 */
-    //    @property (nonatomic, strong) UIFont * sendButtonFont;
-    
 }
 
 @end

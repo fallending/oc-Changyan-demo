@@ -4,8 +4,14 @@
 #import <UIKit/UIKit.h>
 
 typedef NS_ENUM(NSInteger, _InputBarStyle) {
+    /**
+     * 普通模式：随键盘弹起，而显示；随键盘收起，而隐藏。
+     */
     _InputBarStyleDefault,
-    _InputBarStyleLarge,
+    /**
+     * 停留模式：手动控制 显示、隐藏；显示的时候，常驻在屏幕下方。
+     */
+    _InputBarStyleStill,
 };
 
 @class _InputBar;
@@ -14,73 +20,60 @@ typedef NS_ENUM(NSInteger, _InputBarStyle) {
 @optional
 
 /**
-//如果你工程中有配置IQKeyboardManager,并对XHInputView造成影响,
- 请在XHInputView将要显示代理方法里 将IQKeyboardManager的enableAutoToolbar及enable属性 关闭
- 请在XHInputView将要消失代理方法里 将IQKeyboardManager的enableAutoToolbar及enable属性 打开
- 如下:
  
-//XHInputView 将要显示
--(void)xhInputViewWillShow:(XHInputView *)inputView{
+//如果你工程中有配置IQKeyboardManager,并对_InputBar造成影响,
+ 
+// _InputBar 将要显示
+- (void)xhInputViewWillShow:(_InputBar *)inputBar {
  [IQKeyboardManager sharedManager].enableAutoToolbar = NO;
  [IQKeyboardManager sharedManager].enable = NO;
 }
 
-//XHInputView 将要影藏
--(void)xhInputViewWillHide:(XHInputView *)inputView{
-     [IQKeyboardManager sharedManager].enableAutoToolbar = YES;
-     [IQKeyboardManager sharedManager].enable = YES;
+// _InputBar 将要影藏
+- (void)xhInputViewWillHide:(_InputBar *)inputBar {
+ [IQKeyboardManager sharedManager].enableAutoToolbar = YES;
+ [IQKeyboardManager sharedManager].enable = YES;
 }
+ 
 */
 
-/**
- XHInputView 将要显示
- 
- @param inputView inputView
- */
-- (void)inputBarWillShow:(_InputBar *)inputView;
+- (void)willShow:(_InputBar *)inputBar;
 
-/**
- XHInputView 将要影藏
+- (void)willHide:(_InputBar *)inputBar;
 
- @param inputView inputView
- */
-- (void)inputBarWillHide:(_InputBar *)inputView;
+- (void)onClickedOutside:(_InputBar *)inputBar; // 仅处理，当前键盘处于弹起状态的情况
 
 @end
 
 @interface _InputBar : UIView
 
-@property (nonatomic, assign) id<_InputBarDelagete> delegate;
+@property (nonatomic, assign)   id<_InputBarDelagete> delegate;
 
-/** 最大输入字数 */
-@property (nonatomic, assign) NSInteger maxCount;
-/** 字体 */
-@property (nonatomic, strong) UIFont * font;
-/** 占位符 */
-@property (nonatomic, copy) NSString *placeholder;
-/** 占位符颜色 */
-@property (nonatomic, strong) UIColor *placeholderColor;
-/** 输入框背景颜色 */
-@property (nonatomic, strong) UIColor* textViewBackgroundColor;
-/** 发送按钮背景色 */
-@property (nonatomic, strong) UIColor *sendButtonBackgroundColor;
-/** 发送按钮Title */
-@property (nonatomic, copy) NSString *sendButtonTitle;
-/** 发送按钮圆角大小 */
-@property (nonatomic, assign) CGFloat sendButtonCornerRadius;
-/** 发送按钮字体 */
-@property (nonatomic, strong) UIFont * sendButtonFont;
-/** 发送按钮点击回调 */
-@property (nonatomic, copy) void(^sendBlcok)(NSString *text);
+@property (nonatomic, assign)   NSInteger maxCount;
 
-/** 初始化方法 */
-- (instancetype)initWithStyle:(_InputBarStyle)style;
+@property (nonatomic, strong)   UIFont *font;
+@property (nonatomic, copy)     NSString *placeholder;
+@property (nonatomic, strong)   UIColor *placeholderColor;
+@property (nonatomic, strong)   UIColor *textViewBackgroundColor;
 
-/** 显示输入框 */
-// 警告！！！！！！！！！！！！！！这个方法还没调试的很好
-- (void)show;
+@property (nonatomic, strong)   UIColor *sendButtonBackgroundColor;
+@property (nonatomic, copy)     NSString *sendButtonTitle;
+@property (nonatomic, assign)   CGFloat sendButtonCornerRadius;
+@property (nonatomic, strong)   UIFont *sendButtonFont;
 
-/** 隐藏输入框 */
+@property (nonatomic, copy)     BOOL (^sendBlcok)(NSString *text);
+
++ (void)showInView:(UIView *)view
+         withStyle:(_InputBarStyle)style
+     configuration:(void(^)(_InputBar *inputBar))configurationHandler
+              send:(BOOL(^)(NSString *text))sendHandler;
+
++ (void)showWithStyle:(_InputBarStyle)style
+        configuration:(void(^)(_InputBar *inputBar))configurationHandler
+                 send:(BOOL(^)(NSString *text))sendHandler;
+
 - (void)hide;
+
+- (void)clear;
 
 @end
