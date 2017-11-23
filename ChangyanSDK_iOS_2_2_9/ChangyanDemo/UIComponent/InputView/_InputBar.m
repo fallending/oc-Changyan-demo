@@ -11,7 +11,6 @@
 
 #define kTextViewCornerRadius 4.f
 
-#define kBackgroundViewColor [UIColor colorWithRed:1 green:1 blue:1 alpha:0.0]
 #define kTextViewHolderBackgroundColor [UIColor colorWithRed:250/255.f green:250/255.f blue:250/255.f alpha:1.0]
 
 #define kPlaceholderColor [UIColor colorWithRed:170/255.f green:170/255.f blue:170/255.f alpha:1]
@@ -59,6 +58,7 @@ static CGFloat keyboardAnimationDuration = 0.5;
                  send:(BOOL(^)(NSString *text))sendHandler {
     _InputBar *inputBar = [[_InputBar alloc] initWithStyle:style];
     UIWindow *window = [UIApplication sharedApplication].delegate.window;
+    [window addSubview:inputBar.backgroundView];
     [window addSubview:inputBar];
     
     if(configurationHandler) configurationHandler(inputBar);
@@ -75,6 +75,10 @@ static CGFloat keyboardAnimationDuration = 0.5;
     _InputBar *inputBar = [[_InputBar alloc] initWithStyle:style];
     
     [view addSubview:inputBar];
+    
+    {
+        
+    }
     
     if(configurationHandler) configurationHandler(inputBar);
     
@@ -344,14 +348,11 @@ static CGFloat keyboardAnimationDuration = 0.5;
         CGSize keyboardSize = [value CGRectValue].size;
         NSLog(@"keyboardSize.height = %f",keyboardSize.height);
         
-        [self.superview addSubview:self.backgroundView];
-        [self.superview bringSubviewToFront:self];
-        
         [UIView animateWithDuration:keyboardAnimationDuration animations:^{
             CGRect frame = self.frame;
             frame.origin.y = kScreenH - keyboardSize.height - frame.size.height;
             self.frame = frame;
-            self.backgroundView.backgroundColor = kBackgroundViewColor;
+            
             self.showFrameDefault = self.frame;
         }];
     }
