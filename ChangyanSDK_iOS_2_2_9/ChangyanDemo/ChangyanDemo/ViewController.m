@@ -618,7 +618,7 @@
     __weak typeof(self) weakSelf = self;
     
 #if 1
-    [_InputBar showWithStyle:_InputBarStyleStill
+    [_InputBar showWithStyle:_InputBarStyleDefault
         becomeFirstResponder:YES
                configuration:^(_InputBar *inputBar) {
         inputBar.maxCount = 200;
@@ -634,7 +634,8 @@
             
             [bar clear];
             
-            if (hideKeyboard) {
+            if (hideKeyboard)
+            {
                 UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"成功" preferredStyle:UIAlertControllerStyleAlert];
                 UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
                 [alertController addAction:cancelAction];

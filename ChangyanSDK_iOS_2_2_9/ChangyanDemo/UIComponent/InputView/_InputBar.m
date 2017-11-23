@@ -345,8 +345,6 @@ becomeFirstResponder:(BOOL)becomeFirstResponder
                 [self pinToBottom];
             }
         }
-        
-        
     }
 }
 
@@ -381,8 +379,13 @@ becomeFirstResponder:(BOOL)becomeFirstResponder
     }
     
     // 普通模式、输入框获取了焦点
-    if (self.textView.isFirstResponder && self.style == _InputBarStyleDefault) {
-        [self animateHide];
+    if (self.textView.isFirstResponder) {
+        
+        if (self.style == _InputBarStyleDefault) {
+            [self animateHide];
+        } else if (self.style == _InputBarStyleStill) {
+            [self pinToBottom];
+        }
     }
 }
 
