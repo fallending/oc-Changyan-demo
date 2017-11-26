@@ -13,7 +13,113 @@
 
 @implementation AppDelegate
 
+- (NSInteger)getStringLengthWithString:(NSString *)string
+{
+    __block NSInteger stringLength = 0;
+    
+    [string enumerateSubstringsInRange:NSMakeRange(0, [string length])
+                               options:NSStringEnumerationByComposedCharacterSequences
+                            usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop)
+     {
+         const unichar hs = [substring characterAtIndex:0];
+         if (0xd800 <= hs && hs <= 0xdbff)
+         {
+             if (substring.length > 1)
+             {
+                 const unichar ls = [substring characterAtIndex:1];
+                 const int uc = ((hs - 0xd800) * 0x400) + (ls - 0xdc00) + 0x10000;
+                 if (0x1d000 <= uc && uc <= 0x1f77f)
+                 {
+                     stringLength += 1;
+                 }
+                 else
+                 {
+                     stringLength += 1;
+                 }
+             }
+             else
+             {
+                 stringLength += 1;
+             }
+         } else if (substring.length > 1)
+         {
+             const unichar ls = [substring characterAtIndex:1];
+             if (ls == 0x20e3)
+             {
+                 stringLength += 1;
+             }
+             else
+             {
+                 stringLength += 1;
+             }
+         } else {
+             if (0x2100 <= hs && hs <= 0x27ff)
+             {
+                 stringLength += 1;
+             }
+             else if (0x2B05 <= hs && hs <= 0x2b07)
+             {
+                 stringLength += 1;
+             }
+             else if (0x2934 <= hs && hs <= 0x2935)
+             {
+                 stringLength += 1;
+             }
+             else if (0x3297 <= hs && hs <= 0x3299)
+             {
+                 stringLength += 1;
+             }
+             else if (hs == 0xa9 || hs == 0xae || hs == 0x303d || hs == 0x3030 || hs == 0x2b55 || hs == 0x2b1c || hs == 0x2b1b || hs == 0x2b50)
+             {
+                 stringLength += 1;
+             }
+             else
+             {
+                 stringLength += 1;
+             }
+         }
+     }];
+    
+    return stringLength;
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    {
+        NSString *string1 = @"你好Hello World!"; // 14
+        printf("length = %ld\n", string1.length); // 14
+        printf("cStringLength = %ld\n", string1.cStringLength); // 0
+        printf("utf8Length = %ld\n", [string1 lengthOfBytesUsingEncoding:NSUTF8StringEncoding]); // 18
+        printf("unicodeLength = %ld\n", [string1 lengthOfBytesUsingEncoding:NSUnicodeStringEncoding]); // 28
+        printf("utf16Length = %ld\n", [string1 lengthOfBytesUsingEncoding:NSUTF16StringEncoding]); // 16
+        printf("utf32Length = %ld\n", [string1 lengthOfBytesUsingEncoding:NSUTF32StringEncoding]); // 56
+        
+        printf("\n");
+        
+        NSString *string2 = @"🇵🇷"; // 16
+        
+        printf("length = %ld\n", string2.length); // 16
+        printf("cStringLength = %ld\n", string2.cStringLength); // 0
+        printf("utf8Length = %ld\n", [string2 lengthOfBytesUsingEncoding:NSUTF8StringEncoding]); // 22
+        printf("unicodeLength = %ld\n", [string2 lengthOfBytesUsingEncoding:NSUnicodeStringEncoding]); // 32
+        printf("utf16Length = %ld\n", [string2 lengthOfBytesUsingEncoding:NSUTF16StringEncoding]); // 32
+        printf("utf32Length = %ld\n", [string2 lengthOfBytesUsingEncoding:NSUTF32StringEncoding]); // 60
+        
+        NSInteger length = [string2 lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+        length -= (length - string2.length) / 2;
+        length = (length +1) / 2;
+        
+        printf("chisLength = %ld\n", length); // 10
+        
+        NSStringEncoding enc = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000);
+        NSData *data = [string2 dataUsingEncoding:enc];
+        
+        printf("gbkLength = %ld\n", data.length); // 20
+        
+        printf("完美Length = %ld\n", [self getStringLengthWithString:string2]); // 15
+        
+    }
+    
     // 一定要用自己的 不要用demo中的
 //    [ChangyanSDK registerApp:@"cysbKCuUr"
 //                      appKey:@"16bd0e2533092b96e3e55958ef19d08a"

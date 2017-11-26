@@ -14,6 +14,7 @@
 #import "_PopupWindow.h"
 #import "_InputBar.h"
 #import "_InputView.h"
+#import <FTIndicator/FTIndicator.h>
 
 @interface ViewController () <_InputBarDelagete>
 
@@ -619,62 +620,14 @@
 }
 
 - (void)onCommentShow {
-    __weak typeof(self) weakSelf = self;
     
-#if 1
-    self.inputBar = [_InputBar showWithStyle:_InputBarStyleStill
-               configuration:^(_InputBar *inputBar) {
-        inputBar.maxCount = 200;
-        inputBar.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
-        inputBar.placeholder = @"请输入ddddd...";
-    } send:^BOOL(_InputBar *bar, NSString *text) {
-        BOOL hideKeyboard = NO;
-        
-        [[ChangyanManager sharedInstance].topic submitComment:@"58776059" content:text success:^(TopicManager *topic) {
-            
-            [bar clear];
-            
-//            if (hideKeyboard)
-            {
-                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"成功" preferredStyle:UIAlertControllerStyleAlert];
-                UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
-                [alertController addAction:cancelAction];
-
-                [weakSelf presentViewController:alertController animated:YES completion:nil];
-            }
-        } failure:^(NSError *error) {
-            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"失败" preferredStyle:UIAlertControllerStyleAlert];
-            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
-            [alertController addAction:cancelAction];
-
-            [weakSelf presentViewController:alertController animated:YES completion:nil];
-        }];
-
-        return hideKeyboard;
-    }];
+#if 0
+    
+    self.inputBar = [_InputBar showWithStyle:_InputBarStyleStill delegate:self];
+    
 #else
-    self.inputBar = [_InputBar showInView:self.view withStyle:_InputBarStyleStill
-            configuration:^(_InputBar *inputBar) {
-        inputBar.maxCount = 200;
-        inputBar.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
-        inputBar.placeholder = @"请输入ddddd...";
-    } send:^BOOL(_InputBar *bar, NSString *text) {
-        [[ChangyanManager sharedInstance].topic submitComment:@"58776059" content:text success:^(TopicManager *topic) {
-            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"成功" preferredStyle:UIAlertControllerStyleAlert];
-            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
-            [alertController addAction:cancelAction];
-            
-            [weakSelf presentViewController:alertController animated:YES completion:nil];
-        } failure:^(NSError *error) {
-            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"失败" preferredStyle:UIAlertControllerStyleAlert];
-            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
-            [alertController addAction:cancelAction];
-            
-            [weakSelf presentViewController:alertController animated:YES completion:nil];
-        }];
-        
-        return NO;
-    }];
+    
+    self.inputBar = [_InputBar showWithStyle:_InputBarStyleStill delegate:self inView:self.view];
     
 #endif
 }
@@ -688,22 +641,41 @@
 
 #pragma mark - XHInputViewDelagete
 
-- (void)inputBarWillShow:(_InputBar *)inputView {
-    /*
-     //如果你工程中有配置IQKeyboardManager,并对XHInputView造成影响,请在XHInputView将要显示时将其关闭
-     [IQKeyboardManager sharedManager].enableAutoToolbar = NO;
-     [IQKeyboardManager sharedManager].enable = NO;
-     */
-    
+- (void)onConfig:(_InputBar *)inputBar {
+    inputBar.maxCount = 20;
+    inputBar.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
+    inputBar.placeholder = @"请输入ddddd...";
 }
 
-- (void)inputBarWillHide:(_InputBar *)inputView {
+- (BOOL)onSend:(_InputBar *)inputBar text:(NSString *)text {
+    BOOL hideKeyboard = NO;
     
-    /*
-     //如果你工程中有配置IQKeyboardManager,并对XHInputView造成影响,请在XHInputView将要影藏时将其打开
-     [IQKeyboardManager sharedManager].enableAutoToolbar = YES;
-     [IQKeyboardManager sharedManager].enable = YES;
-     */
+    [[ChangyanManager sharedInstance].topic submitComment:@"58776059" content:text success:^(TopicManager *topic) {
+        
+        [inputBar clear];
+        
+        if (hideKeyboard)
+        {
+            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"成功" preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+            [alertController addAction:cancelAction];
+            
+            [self presentViewController:alertController animated:YES completion:nil];
+        }
+    } failure:^(NSError *error) {
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提交评论" message:@"失败" preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
+    }];
+    
+    
+    return hideKeyboard;
+}
+
+- (void)onMacCountTriggerred:(_InputBar *)inputBar text:(NSString *)text {
+    [FTIndicator showToastMessage:@"卖马皮，你超出字数啦！"];
 }
 
 @end

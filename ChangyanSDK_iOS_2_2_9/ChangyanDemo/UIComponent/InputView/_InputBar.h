@@ -17,20 +17,24 @@ typedef NS_ENUM(NSInteger, _InputBarStyle) {
 @class _InputBar;
 
 @protocol _InputBarDelagete <NSObject>
+
+- (void)onConfig:(_InputBar *)inputBar;
+
+/**
+ *  @return YES 收起键盘
+ */
+- (BOOL)onSend:(_InputBar *)inputBar text:(NSString *)text;
+
 @optional
 
 /**
  
-//如果你工程中有配置IQKeyboardManager,并对_InputBar造成影响,
- 
-// _InputBar 将要显示
-- (void)xhInputViewWillShow:(_InputBar *)inputBar {
+// 如果你工程中有配置IQKeyboardManager,并对_InputBar造成影响,
+- (void)willShow:(_InputBar *)inputBar {
  [IQKeyboardManager sharedManager].enableAutoToolbar = NO;
  [IQKeyboardManager sharedManager].enable = NO;
 }
-
-// _InputBar 将要影藏
-- (void)xhInputViewWillHide:(_InputBar *)inputBar {
+- (void)willHide:(_InputBar *)inputBar {
  [IQKeyboardManager sharedManager].enableAutoToolbar = YES;
  [IQKeyboardManager sharedManager].enable = YES;
 }
@@ -41,13 +45,15 @@ typedef NS_ENUM(NSInteger, _InputBarStyle) {
 
 - (void)willHide:(_InputBar *)inputBar;
 
-- (void)onClickedOutside:(_InputBar *)inputBar; // 仅处理，当前键盘处于弹起状态的情况
+- (void)onBackground:(_InputBar *)inputBar; // 仅处理，当前键盘处于弹起状态的情况
+
+- (void)onTextChanged:(_InputBar *)inputBar text:(NSString *)text;
+
+- (void)onMacCountTriggerred:(_InputBar *)inputBar text:(NSString *)text;
 
 @end
 
 @interface _InputBar : UIView
-
-@property (nonatomic, assign)   id<_InputBarDelagete> delegate;
 
 @property (nonatomic, assign)   NSInteger maxCount;
 
@@ -61,21 +67,19 @@ typedef NS_ENUM(NSInteger, _InputBarStyle) {
 @property (nonatomic, assign)   CGFloat sendButtonCornerRadius;
 @property (nonatomic, strong)   UIFont *sendButtonFont;
 
-@property (nonatomic, copy)     BOOL (^sendBlock)(_InputBar *inputBar, NSString *text);
+// 创建在当前视图上下文
++ (instancetype)showWithStyle:(_InputBarStyle)style delegate:(id<_InputBarDelagete>)delegate inView:(UIView *)view;
 
-+ (instancetype)showInView:(UIView *)view
-                 withStyle:(_InputBarStyle)style
-             configuration:(void(^)(_InputBar *inputBar))configurationHandler
-                      send:(BOOL(^)(_InputBar *inputBar, NSString *text))sendHandler;
+// 创建在当前窗口
++ (instancetype)showWithStyle:(_InputBarStyle)style delegate:(id<_InputBarDelagete>)delegate;
 
-+ (instancetype)showWithStyle:(_InputBarStyle)style
-                configuration:(void(^)(_InputBar *inputBar))configurationHandler
-                         send:(BOOL(^)(_InputBar *inputBar, NSString *text))sendHandler;
-
+// 移除输入视图
 - (void)hide;
 
+// 切换输入框焦点
 - (void)toggleFirstResponder:(BOOL)toFirstResponder;
 
+// 清理输入框
 - (void)clear;
 
 @end

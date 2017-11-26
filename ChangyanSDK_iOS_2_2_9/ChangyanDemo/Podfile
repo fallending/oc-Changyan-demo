@@ -1,5 +1,6 @@
 use_frameworks!
 
 target 'ChangyanDemo' do  
-	pod 'AEHybridEngine', '0.0.3' 
+	pod 'AEHybridEngine', '0.0.3'
+    pod 'FTIndicator'
 end
