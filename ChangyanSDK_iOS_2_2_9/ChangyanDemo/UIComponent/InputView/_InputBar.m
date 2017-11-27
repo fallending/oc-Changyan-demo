@@ -92,6 +92,10 @@ CGFloat SuperViewHeight = 0.f;
 @property (nonatomic, weak) UIView *viewWithTapRecognizer;
 @property (nonatomic, strong) UITapGestureRecognizer *tapRecognizer;
 
+///////////////////////////////////////////////////////
+// InputBar 因为需要高内聚，很多细碎的功能挤在一个文件中，不得已，
+// 拆出了一些 'Event' 的 'Handler' 来装额外的 'Action'。
+///////////////////////////////////////////////////////
 - (void)_onInit;
 - (void)_onUnit;
 
@@ -100,6 +104,7 @@ CGFloat SuperViewHeight = 0.f;
 
 - (void)_onTextShow;
 - (void)_onTextDismiss;
+///////////////////////////////////////////////////////
 
 @end
 
@@ -219,9 +224,6 @@ CGFloat SuperViewHeight = 0.f;
     self.placeholderLabel.textColor = kPlaceholderColor;
     [self.textView addSubview:self.placeholderLabel];
     
-    self.sendButtonFrameDefault = self.sendButton.frame;
-    self.textViewFrameDefault = self.textView.frame;
-    
     { // 上边框
         self.textBackgroundTopBorderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenW, 0.5)];
         self.textBackgroundTopBorderView.backgroundColor = kInputBarBorderColor;
@@ -253,9 +255,6 @@ CGFloat SuperViewHeight = 0.f;
 }
 
 - (void)dealloc {
-    NSLog(@"_InputBar dealloc");
-    NSLog(@"OUT, view = %@, tap = %@", self.viewWithTapRecognizer, self.tapRecognizer);
-    
     [self _onUnit];
 }
 
@@ -464,6 +463,11 @@ CGFloat SuperViewHeight = 0.f;
 
 - (void)_onInit {
     self.showFrameDefault = self.frame;
+    self.sendButtonFrameDefault = self.sendButton.frame;
+    self.textViewFrameDefault = self.textView.frame;
+    
+    self.sendButton.hidden = YES;
+    self.sendButton.enabled = NO;
     
     [self initNotification];
 }
@@ -523,6 +527,7 @@ CGFloat SuperViewHeight = 0.f;
                    );
 
         self.sendButton.hidden = NO;
+        
     }
 }
 

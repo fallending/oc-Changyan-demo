@@ -622,7 +622,7 @@
 
 - (void)onCommentShow {
     
-#if 1
+#if 0
     
     self.inputBar = [_InputBar showWithStyle:_InputBarStyleDefault delegate:self];
     
