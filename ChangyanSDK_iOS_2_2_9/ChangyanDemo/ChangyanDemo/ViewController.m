@@ -41,6 +41,7 @@
     UIImage *image = [UIImage imageWithContentsOfFile:imgPath];
     
     /************************** 新增调试入口 *************************/
+    
     {
         // 1
         UIButton *leftBtn = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -88,14 +89,14 @@
     commentViewBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     commentViewBtn.backgroundColor = [UIColor purpleColor];
     [commentViewBtn setTitle:@"显示 2" forState:UIControlStateNormal];
-    commentViewBtn.frame = CGRectMake(110, 500, 120, 40);
+    commentViewBtn.frame = CGRectMake(110, 500, 100, 40);
     [commentViewBtn addTarget:self action:@selector(onCommentShow) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:commentViewBtn];
     
     commentViewBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     commentViewBtn.backgroundColor = [UIColor purpleColor];
     [commentViewBtn setTitle:@"隐藏 2" forState:UIControlStateNormal];
-    commentViewBtn.frame = CGRectMake(210, 500, 120, 40);
+    commentViewBtn.frame = CGRectMake(215, 500, 100, 40);
     [commentViewBtn addTarget:self action:@selector(onCommentHide) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:commentViewBtn];
     
@@ -644,7 +645,7 @@
 - (void)onConfig:(_InputBar *)inputBar {
     inputBar.maxCount = 20;
     inputBar.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
-    inputBar.placeholder = @"请输入ddddd...";
+    inputBar.placeholder = @"发表你的神评论吧～最多200字";
 }
 
 - (BOOL)onSend:(_InputBar *)inputBar text:(NSString *)text {
@@ -675,7 +676,7 @@
 }
 
 - (void)onMacCountTriggerred:(_InputBar *)inputBar text:(NSString *)text {
-    [FTIndicator showToastMessage:@"卖马皮，你超出字数啦！"];
+    [FTIndicator showToastMessage:@"已达输入上限"];
 }
 
 @end

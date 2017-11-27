@@ -43,17 +43,14 @@
 #define kScreenW    [UIScreen mainScreen].bounds.size.width
 #define kScreenH    [UIScreen mainScreen].bounds.size.height
 
-#define kStyleLarge_LRSpace 10
-#define kStyleLarge_TBSpace 8
-#define kStyleDefault_LRSpace 10
-#define kStyleDefault_TBSpace 8
-#define kCountLabHeight 20
+#define kStyleHorizontalSpace 10
+#define kStyleVerticalSpace 8
 
 #define kTextViewCornerRadius 4.f
-
 #define kTextViewHolderBackgroundColor [UIColor colorWithRed:250/255.f green:250/255.f blue:250/255.f alpha:1.0]
 
 #define kPlaceholderColor [UIColor colorWithRed:170/255.f green:170/255.f blue:170/255.f alpha:1]
+
 #define kInputBarBorderColor [UIColor colorWithRed:191/255.f green:191/255.f blue:191/255.f alpha:1]
 #define kInputTextViewBorderColor [UIColor colorWithRed:235/255.f green:235/255.f blue:235/255.f alpha:1]
 #define kInputTextViewBackgroundColor [UIColor colorWithRed:252/255.f green:252/255.f blue:252/255.f alpha:1]
@@ -61,7 +58,10 @@
 #define kSendButtonNormalTitleColor [UIColor colorWithRed:90/255.f green:90/255.f blue:90/255.f alpha:1]
 #define kSendButtonDisableTitleColor [UIColor colorWithRed:230/255.f green:230/255.f blue:230/255.f alpha:1]
 
-#define kStyleDefault_Height 44
+#define kInputBarHeight         50
+#define kTextViewHeight         (kInputBarHeight-2*kStyleVerticalSpace)
+#define kSendButtonHeight       (kInputBarHeight-2*kStyleVerticalSpace)
+#define kSendButtonWidth        45
 
 static CGFloat keyboardAnimationDuration = 0.3;
 CGFloat SuperViewHeight = 0.f;
@@ -90,6 +90,15 @@ CGFloat SuperViewHeight = 0.f;
 
 @property (nonatomic, weak) UIView *viewWithTapRecognizer;
 @property (nonatomic, strong) UITapGestureRecognizer *tapRecognizer;
+
+- (void)_onInit;
+- (void)_onUnit;
+
+- (void)_onKeyboardAppear;
+- (void)_onKeyboardDisappear;
+
+- (void)_onTextShow;
+- (void)_onTextDismiss;
 
 @end
 
@@ -166,21 +175,32 @@ CGFloat SuperViewHeight = 0.f;
     [self textViewDidChange:self.textView];
 }
 
-#pragma mark -
+#pragma mark - Life cycle
+
 - (void)initUI {
-    CGFloat sendButtonWidth = 45;
-    CGFloat sendButtonHeight = self.bounds.size.height -2*kStyleDefault_TBSpace;
     self.sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.sendButton.frame = CGRectMake(kScreenW - kStyleDefault_LRSpace - sendButtonWidth, kStyleDefault_TBSpace,sendButtonWidth, sendButtonHeight);
+    self.sendButton.frame =
+    CGRectMake(
+               kScreenW - kStyleHorizontalSpace - kSendButtonWidth,
+               kStyleVerticalSpace,
+               kSendButtonWidth,
+               kSendButtonHeight
+               );
     [self.sendButton setTitleColor:kSendButtonNormalTitleColor forState:UIControlStateNormal];
     [self.sendButton setTitleColor:kSendButtonDisableTitleColor forState:UIControlStateDisabled];
     [self.sendButton setTitle:@"发送" forState:UIControlStateNormal];
     [self.sendButton addTarget:self action:@selector(onSend_FixMultiClick) forControlEvents:UIControlEventTouchUpInside];
-    self.sendButton.titleLabel.font = [UIFont systemFontOfSize:15];
+    self.sendButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [self addSubview:self.sendButton];
     
-    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(kStyleDefault_LRSpace, kStyleDefault_TBSpace, kScreenW - 3*kStyleDefault_LRSpace - sendButtonWidth, self.bounds.size.height-2*kStyleDefault_TBSpace)];
-    self.textView.font = [UIFont systemFontOfSize:14];
+    self.textView = [[UITextView alloc] initWithFrame:
+                     CGRectMake(
+                                kStyleHorizontalSpace,
+                                kStyleVerticalSpace,
+                                kScreenW - 2*kStyleHorizontalSpace,
+                                kTextViewHeight
+                                )];
+    self.textView.font = [UIFont systemFontOfSize:15];
     self.textView.backgroundColor = kInputTextViewBackgroundColor;
     self.textView.delegate = self;
     //_textView.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
@@ -189,7 +209,13 @@ CGFloat SuperViewHeight = 0.f;
     self.textView.layer.cornerRadius = kTextViewCornerRadius;
     [self addSubview:self.textView];
     
-    self.placeholderLabel = [[UILabel alloc] initWithFrame:CGRectMake(7, 0, _textView.bounds.size.width-14, self.textView.bounds.size.height)];
+    self.placeholderLabel = [[UILabel alloc] initWithFrame:
+                             CGRectMake(
+                                        kStyleHorizontalSpace,
+                                        0,
+                                        _textView.bounds.size.width,
+                                        kTextViewHeight
+                                        )];
     self.placeholderLabel.font = self.textView.font;
     self.placeholderLabel.text = @"请输入...";
     self.placeholderLabel.textColor = kPlaceholderColor;
@@ -198,12 +224,20 @@ CGFloat SuperViewHeight = 0.f;
     self.sendButtonFrameDefault = self.sendButton.frame;
     self.textViewFrameDefault = self.textView.frame;
     
-    {
-        // 上边框
+    { // 上边框
         self.textBackgroundTopBorderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenW, 0.5)];
         self.textBackgroundTopBorderView.backgroundColor = kInputBarBorderColor;
         [self addSubview:self.textBackgroundTopBorderView];
     }
+}
+
+- (void)initNotification {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillAppear:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillDisappear:) name:UIKeyboardWillHideNotification object:nil];
+}
+
+- (void)uinitNotification {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (instancetype)initWithStyle:(_InputBarStyle)style {
@@ -211,13 +245,11 @@ CGFloat SuperViewHeight = 0.f;
     if (self) {
         self.style = style;
         self.backgroundColor = kTextViewHolderBackgroundColor;
-        self.showFrameDefault = CGRectMake(0, kScreenH, kScreenW, kStyleDefault_Height);
-        self.frame = self.showFrameDefault;
+        self.frame = CGRectMake(0, kScreenH, kScreenW, kInputBarHeight);;
         
         [self initUI];
         
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillAppear:) name:UIKeyboardWillShowNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillDisappear:) name:UIKeyboardWillHideNotification object:nil];
+        [self _onInit];
     }
     return self;
 }
@@ -225,7 +257,8 @@ CGFloat SuperViewHeight = 0.f;
 - (void)dealloc {
     NSLog(@"_InputBar dealloc");
     NSLog(@"OUT, view = %@, tap = %@", self.viewWithTapRecognizer, self.tapRecognizer);
-    [self setBackgroundTapRecogenizer:nil];
+    
+    [self _onUnit];
 }
 
 #pragma mark - 私有方法
@@ -252,13 +285,13 @@ CGFloat SuperViewHeight = 0.f;
 }
 
 - (NSNumber *)preferredHeight { // 加入 UIView 的 类别协议
-    return @(kStyleDefault_Height);
+    return @(kInputBarHeight);
 }
 
 - (void)resetFrameDefault {
-        self.frame = self.showFrameDefault;
-        self.sendButton.frame = self.sendButtonFrameDefault;
-        self.textView.frame = self.textViewFrameDefault;
+    self.frame = self.showFrameDefault;
+    self.sendButton.frame = self.sendButtonFrameDefault;
+    self.textView.frame = self.textViewFrameDefault;
 }
 
 - (void)setBackgroundTapRecogenizer:(UIView *)view {
@@ -294,6 +327,12 @@ CGFloat SuperViewHeight = 0.f;
         
         // 将发送按钮置为有效
         self.sendButton.enabled = YES;
+        
+        ////////////////////////////////////////////////
+        
+        [self _onTextShow];
+        
+        ////////////////////////////////////////////////
     } else {
         
         // 显示占位字符
@@ -301,6 +340,12 @@ CGFloat SuperViewHeight = 0.f;
         
         // 将发送按钮置为无效
         self.sendButton.enabled = NO;
+        
+        ////////////////////////////////////////////////
+        
+        [self _onTextDismiss];
+        
+        ////////////////////////////////////////////////
     }
     
     // TODO：字符数控制
@@ -316,9 +361,9 @@ CGFloat SuperViewHeight = 0.f;
     }
     
     {
-        CGFloat height = [self string:textView.text heightWithFont:textView.font constrainedToWidth:textView.bounds.size.width] + 2*kStyleDefault_TBSpace;
-        CGFloat heightDefault = kStyleDefault_Height;
-        if(height >= heightDefault){
+        CGFloat height = [self string:textView.text heightWithFont:textView.font constrainedToWidth:textView.bounds.size.width] + 2*kStyleVerticalSpace;
+        CGFloat heightDefault = kInputBarHeight;
+        if(height >= heightDefault) {
             [UIView animateWithDuration:0.3 animations:^{
                 //调整frame
                 CGRect frame = self.showFrameDefault;
@@ -327,16 +372,22 @@ CGFloat SuperViewHeight = 0.f;
                 self.frame = frame;
                 
                 //调整sendButton frame
-                _sendButton.frame = CGRectMake(kScreenW - kStyleDefault_LRSpace - _sendButton.frame.size.width, self.bounds.size.height - _sendButton.bounds.size.height - kStyleDefault_TBSpace, _sendButton.bounds.size.width, _sendButton.bounds.size.height);
+                _sendButton.frame = CGRectMake(kScreenW - kStyleHorizontalSpace - _sendButton.frame.size.width, self.bounds.size.height - _sendButton.bounds.size.height - kStyleVerticalSpace, _sendButton.bounds.size.width, _sendButton.bounds.size.height);
                 
                 //调整textView frame
-                textView.frame = CGRectMake(kStyleDefault_LRSpace, kStyleDefault_TBSpace, textView.bounds.size.width, self.bounds.size.height - 2*kStyleDefault_TBSpace);
-            }];
-        } else {
-            [UIView animateWithDuration:0.3 animations:^{
-                [self resetFrameDefault];
+                textView.frame = CGRectMake(
+                                            kStyleHorizontalSpace,
+                                            kStyleVerticalSpace,
+                                            textView.bounds.size.width,
+                                            self.bounds.size.height - 2*kStyleVerticalSpace
+                                            );
             }];
         }
+//        else {
+//            [UIView animateWithDuration:0.3 animations:^{
+//                [self resetFrameDefault];
+//            }];
+//        }
     }
     
 }
@@ -344,6 +395,13 @@ CGFloat SuperViewHeight = 0.f;
 #pragma mark - UIGestureRecognizerDelegate
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    // 如果点击touch在SendButton中，则不处理；显示在UIWindow的时候，不需要处理这个情况。
+    CGPoint point = [touch locationInView:gestureRecognizer.view];
+    CGPoint pointInSendButton = [gestureRecognizer.view convertPoint:point toView:self];
+    if (!self.sendButton.hidden && CGRectContainsPoint(self.sendButton.frame, pointInSendButton)) {
+        return NO;
+    }
+
     // 当键盘处于弹起状态，则收起来；否则，不接收事件
     if (self.textView.isFirstResponder) {
         if ([self.delegate respondsToSelector:@selector(onBackground:)]) {
@@ -354,6 +412,8 @@ CGFloat SuperViewHeight = 0.f;
         [self.textView resignFirstResponder];
         
         return YES;
+    } else {
+        
     }
     
     return NO;
@@ -398,6 +458,90 @@ CGFloat SuperViewHeight = 0.f;
     [self performSelector:@selector(onSend) withObject:nil afterDelay:0.3];
 }
 
+#pragma mark - 内部事件构建与处理
+
+- (void)_onInit {
+    self.showFrameDefault = self.frame;
+    
+    [self initNotification];
+}
+
+- (void)_onUnit {
+    [self uinitNotification];
+    
+    [self setBackgroundTapRecogenizer:nil];
+}
+
+- (void)_onKeyboardAppear {
+    if (self.sendButton.hidden) { // 如果当前 是 隐藏态
+        
+        [UIView animateWithDuration:0.3 animations:^{
+            self.textView.frame =
+            CGRectMake(
+                       kStyleHorizontalSpace,
+                       kStyleVerticalSpace,
+                       kScreenW - 3*kStyleHorizontalSpace - kSendButtonWidth,
+                       self.bounds.size.height-2*kStyleVerticalSpace
+                       );
+            
+            self.sendButton.hidden = NO;
+        }];
+        
+    }
+}
+
+- (void)_onKeyboardDisappear {
+    if (!self.sendButton.hidden // 如果当前 是 显示态
+        && !self.textView.text.length
+        ) {
+        
+        [UIView animateWithDuration:0.3 animations:^{
+            self.textView.frame =
+            CGRectMake(
+                       kStyleHorizontalSpace,
+                       kStyleVerticalSpace,
+                       kScreenW - 2*kStyleHorizontalSpace,
+                       self.bounds.size.height-2*kStyleVerticalSpace);
+            
+            self.sendButton.hidden = YES;
+        }];
+        
+    }
+}
+
+- (void)_onTextShow {
+    if (self.sendButton.hidden) {
+
+        self.textView.frame =
+        CGRectMake(
+                   kStyleHorizontalSpace,
+                   kStyleVerticalSpace,
+                   kScreenW - 3*kStyleHorizontalSpace - kSendButtonWidth,
+                   self.bounds.size.height-2*kStyleVerticalSpace
+                   );
+
+        self.sendButton.hidden = NO;
+    }
+}
+
+- (void)_onTextDismiss {
+    if (self.textView.isFirstResponder) { // 键盘弹起态
+        self.sendButton.hidden = NO;
+    } else { // 键盘收起态
+        
+        [UIView animateWithDuration:0.3 animations:^{
+            self.textView.frame =
+            CGRectMake(
+                       kStyleHorizontalSpace,
+                       kStyleVerticalSpace,
+                       kScreenW - 2*kStyleHorizontalSpace,
+                       self.bounds.size.height-2*kStyleVerticalSpace);
+            
+            self.sendButton.hidden = YES;
+        }];
+    }
+}
+
 #pragma mark - 监听键盘
 
 - (void)keyboardWillAppear:(NSNotification *)noti {
@@ -422,10 +566,22 @@ CGFloat SuperViewHeight = 0.f;
             
             self.showFrameDefault = self.frame;
         }];
+        
+        ////////////////////////////////////////////////
+        
+        [self _onKeyboardAppear];
+        
+        ////////////////////////////////////////////////
     }
 }
 
 - (void)keyboardWillDisappear:(NSNotification *)noti {
+    
+    ////////////////////////////////////////////////
+    
+    [self _onKeyboardDisappear];
+    
+    ////////////////////////////////////////////////
     
     // 用户手动调用隐藏方法
     if (self.willHide) {
