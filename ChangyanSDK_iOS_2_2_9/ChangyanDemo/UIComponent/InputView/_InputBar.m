@@ -14,7 +14,7 @@
 @property (nonatomic, assign, readonly) int32_t lengthAsChis;
 /** 'a' 长度 1；'我' 长度 2；'😄' 长度 4； */
 @property (nonatomic, assign, readonly) int32_t lengthAsGbk;
-/** 'a' 长度 1；'我' 长度 1；'😄' 长度 1； */
+/** 'a' 长度 1；'我' 长度 1；'😄' 长度 1；( Not sure! GOON dig! )*/
 @property (nonatomic, assign, readonly) int32_t lengthAsPerfect;
 
 /**
