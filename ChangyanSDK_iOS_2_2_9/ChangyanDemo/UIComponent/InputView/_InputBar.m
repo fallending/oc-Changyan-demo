@@ -44,6 +44,7 @@
 #define kScreenH    [UIScreen mainScreen].bounds.size.height
 
 #define kStyleHorizontalSpace 10
+#define kStyleInnerHorizontalSpace 5
 #define kStyleVerticalSpace 8
 
 #define kTextViewCornerRadius 4.f
@@ -111,15 +112,14 @@ CGFloat SuperViewHeight = 0.f;
     
     _InputBar *inputBar = [[_InputBar alloc] initWithStyle:style];
     inputBar.delegate = delegate;
-    
-    UIWindow *window = [UIApplication sharedApplication].delegate.window;
-    
-    [window addSubview:inputBar.backgroundView];
-    [window addSubview:inputBar];
-    
     if ([inputBar.delegate respondsToSelector:@selector(onConfig:)]) {
         [inputBar.delegate onConfig:inputBar];
     }
+    [inputBar setBackgroundTapRecogenizer:inputBar.backgroundView];
+    
+    UIWindow *window = [UIApplication sharedApplication].delegate.window;
+    [window addSubview:inputBar.backgroundView];
+    [window addSubview:inputBar];
     
     [inputBar show:YES];
     
@@ -131,14 +131,13 @@ CGFloat SuperViewHeight = 0.f;
     
     _InputBar *inputBar = [[_InputBar alloc] initWithStyle:style];
     inputBar.delegate = delegate;
+    if ([inputBar.delegate respondsToSelector:@selector(onConfig:)]) {
+        [inputBar.delegate onConfig:inputBar];
+    }
     [inputBar setBackgroundTapRecogenizer:view];
     
     [view addSubview:inputBar];
     [view bringSubviewToFront:inputBar];
-    
-    if ([inputBar.delegate respondsToSelector:@selector(onConfig:)]) {
-        [inputBar.delegate onConfig:inputBar];
-    }
     
     [inputBar show:NO];
     
@@ -203,7 +202,6 @@ CGFloat SuperViewHeight = 0.f;
     self.textView.font = [UIFont systemFontOfSize:15];
     self.textView.backgroundColor = kInputTextViewBackgroundColor;
     self.textView.delegate = self;
-    //_textView.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
     self.textView.layer.borderColor = kInputTextViewBorderColor.CGColor;
     self.textView.layer.borderWidth = 0.5;
     self.textView.layer.cornerRadius = kTextViewCornerRadius;
@@ -211,15 +209,15 @@ CGFloat SuperViewHeight = 0.f;
     
     self.placeholderLabel = [[UILabel alloc] initWithFrame:
                              CGRectMake(
-                                        kStyleHorizontalSpace,
+                                        kStyleInnerHorizontalSpace,
                                         0,
                                         _textView.bounds.size.width,
                                         kTextViewHeight
                                         )];
     self.placeholderLabel.font = self.textView.font;
-    self.placeholderLabel.text = @"请输入...";
+//    self.placeholderLabel.text = @"请输入...";
     self.placeholderLabel.textColor = kPlaceholderColor;
-    [_textView addSubview:self.placeholderLabel];
+    [self.textView addSubview:self.placeholderLabel];
     
     self.sendButtonFrameDefault = self.sendButton.frame;
     self.textViewFrameDefault = self.textView.frame;
@@ -398,7 +396,11 @@ CGFloat SuperViewHeight = 0.f;
     // 如果点击touch在SendButton中，则不处理；显示在UIWindow的时候，不需要处理这个情况。
     CGPoint point = [touch locationInView:gestureRecognizer.view];
     CGPoint pointInSendButton = [gestureRecognizer.view convertPoint:point toView:self];
-    if (!self.sendButton.hidden && CGRectContainsPoint(self.sendButton.frame, pointInSendButton)) {
+    if (self.style == _InputBarStyleStill
+        &&
+        !self.sendButton.hidden
+        &&
+        CGRectContainsPoint(self.sendButton.frame, pointInSendButton)) {
         return NO;
     }
 
@@ -631,7 +633,9 @@ CGFloat SuperViewHeight = 0.f;
     self.placeholderLabel.text = placeholder;
     
     // 规则：只要设置占位字符，就清空输入框
-    [self clear];
+    if (self.textView.text.length) {
+        [self clear];
+    }
 }
 
 - (void)setPlaceholderColor:(UIColor *)placeholderColor {

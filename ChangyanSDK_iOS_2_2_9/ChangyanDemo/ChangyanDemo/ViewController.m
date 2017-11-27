@@ -622,9 +622,9 @@
 
 - (void)onCommentShow {
     
-#if 0
+#if 1
     
-    self.inputBar = [_InputBar showWithStyle:_InputBarStyleStill delegate:self];
+    self.inputBar = [_InputBar showWithStyle:_InputBarStyleDefault delegate:self];
     
 #else
     
@@ -649,7 +649,7 @@
 }
 
 - (BOOL)onSend:(_InputBar *)inputBar text:(NSString *)text {
-    BOOL hideKeyboard = NO;
+    BOOL hideKeyboard = YES;
     
     [[ChangyanManager sharedInstance].topic submitComment:@"58776059" content:text success:^(TopicManager *topic) {
         
