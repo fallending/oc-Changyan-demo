@@ -1,4 +1,5 @@
 #import "_InputBar.h"
+#import "_TextView.h"
 
 #pragma mark - String length
 
@@ -76,7 +77,7 @@ CGFloat SuperViewHeight = 0.f;
 @property (nonatomic, strong) UIView *backgroundView;
 
 @property (nonatomic, strong) UITextView *textView;
-@property (nonatomic, strong) UIView *textBackgroundView;
+//@property (nonatomic, strong) UIView *textBackgroundView;
 @property (nonatomic, strong) UIView *textBackgroundTopBorderView;
 
 @property (nonatomic, strong) UILabel *placeholderLabel;
@@ -292,14 +293,15 @@ CGFloat SuperViewHeight = 0.f;
 }
 
 - (void)setBackgroundTapRecogenizer:(UIView *)view {
-    if (!view &&
-        self.viewWithTapRecognizer &&
-        self.tapRecognizer) {
+    if (!view) {
         
-        [self.viewWithTapRecognizer removeGestureRecognizer:self.tapRecognizer];
-        
-        self.viewWithTapRecognizer = nil;
-        self.tapRecognizer = nil;
+        if (self.viewWithTapRecognizer &&
+            self.tapRecognizer) {
+            [self.viewWithTapRecognizer removeGestureRecognizer:self.tapRecognizer];
+            
+            self.viewWithTapRecognizer = nil;
+            self.tapRecognizer = nil;
+        }
         
         return;
     }
@@ -394,12 +396,18 @@ CGFloat SuperViewHeight = 0.f;
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
     // 如果点击touch在SendButton中，则不处理；显示在UIWindow的时候，不需要处理这个情况。
     CGPoint point = [touch locationInView:gestureRecognizer.view];
-    CGPoint pointInSendButton = [gestureRecognizer.view convertPoint:point toView:self];
+    CGPoint pointInExpect = [gestureRecognizer.view convertPoint:point toView:self];
     if (self.style == _InputBarStyleStill
         &&
         !self.sendButton.hidden
         &&
-        CGRectContainsPoint(self.sendButton.frame, pointInSendButton)) {
+        CGRectContainsPoint(self.sendButton.frame, pointInExpect)) {
+        return NO;
+    }
+    
+    if (self.style == _InputBarStyleStill
+        &&
+        CGRectContainsPoint(self.textView.frame, pointInExpect)) {
         return NO;
     }
 
@@ -481,7 +489,7 @@ CGFloat SuperViewHeight = 0.f;
 - (void)_onKeyboardAppear {
     if (self.sendButton.hidden) { // 如果当前 是 隐藏态
         
-        [UIView animateWithDuration:0.3 animations:^{
+//        [UIView animateWithDuration:0.3 animations:^{
             self.textView.frame =
             CGRectMake(
                        kStyleHorizontalSpace,
@@ -491,7 +499,7 @@ CGFloat SuperViewHeight = 0.f;
                        );
             
             self.sendButton.hidden = NO;
-        }];
+//        }];
         
     }
 }
@@ -623,7 +631,7 @@ CGFloat SuperViewHeight = 0.f;
 
 - (void)setTextViewBackgroundColor:(UIColor *)textViewBackgroundColor {
     _textViewBackgroundColor = textViewBackgroundColor;
-    self.textBackgroundView.backgroundColor = textViewBackgroundColor;
+//    self.textBackgroundView.backgroundColor = textViewBackgroundColor;
 }
 
 - (void)setFont:(UIFont *)font {
