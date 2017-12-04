@@ -51,8 +51,6 @@
 #define kTextViewCornerRadius 4.f
 #define kTextViewHolderBackgroundColor [UIColor colorWithRed:250/255.f green:250/255.f blue:250/255.f alpha:1.0]
 
-#define kPlaceholderColor [UIColor colorWithRed:170/255.f green:170/255.f blue:170/255.f alpha:1]
-
 #define kInputBarBorderColor [UIColor colorWithRed:191/255.f green:191/255.f blue:191/255.f alpha:1]
 #define kInputTextViewBorderColor [UIColor colorWithRed:235/255.f green:235/255.f blue:235/255.f alpha:1]
 #define kInputTextViewBackgroundColor [UIColor colorWithRed:252/255.f green:252/255.f blue:252/255.f alpha:1]
@@ -76,11 +74,8 @@ CGFloat SuperViewHeight = 0.f;
 
 @property (nonatomic, strong) UIView *backgroundView;
 
-@property (nonatomic, strong) UITextView *textView;
-//@property (nonatomic, strong) UIView *textBackgroundView;
+@property (nonatomic, strong) _TextView *textView;
 @property (nonatomic, strong) UIView *textBackgroundTopBorderView;
-
-@property (nonatomic, strong) UILabel *placeholderLabel;
 
 @property (nonatomic, strong) UIButton *sendButton;
 
@@ -198,7 +193,7 @@ CGFloat SuperViewHeight = 0.f;
     self.sendButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [self addSubview:self.sendButton];
     
-    self.textView = [[UITextView alloc] initWithFrame:
+    self.textView = [[_TextView alloc] initWithFrame:
                      CGRectMake(
                                 kStyleHorizontalSpace,
                                 kStyleVerticalSpace,
@@ -212,18 +207,6 @@ CGFloat SuperViewHeight = 0.f;
     self.textView.layer.borderWidth = 0.5;
     self.textView.layer.cornerRadius = kTextViewCornerRadius;
     [self addSubview:self.textView];
-    
-    self.placeholderLabel = [[UILabel alloc] initWithFrame:
-                             CGRectMake(
-                                        kStyleInnerHorizontalSpace,
-                                        0,
-                                        _textView.bounds.size.width,
-                                        kTextViewHeight
-                                        )];
-    self.placeholderLabel.font = self.textView.font;
-//    self.placeholderLabel.text = @"请输入...";
-    self.placeholderLabel.textColor = kPlaceholderColor;
-    [self.textView addSubview:self.placeholderLabel];
     
     { // 上边框
         self.textBackgroundTopBorderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenW, 0.5)];
@@ -267,8 +250,7 @@ CGFloat SuperViewHeight = 0.f;
     }
     
     _textView.text = nil;
-    _placeholderLabel.hidden = NO;
-    
+
     [self resetFrameDefault];
     
     if (becomeFirstResponder) {
@@ -321,9 +303,7 @@ CGFloat SuperViewHeight = 0.f;
 
 - (void)textViewDidChange:(UITextView *)textView {
     if(textView.text.length) {
-        // 隐藏占位字符
-        self.placeholderLabel.hidden = YES;
-        
+
         // 将发送按钮置为有效
         self.sendButton.enabled = YES;
         
@@ -333,10 +313,7 @@ CGFloat SuperViewHeight = 0.f;
         
         ////////////////////////////////////////////////
     } else {
-        
-        // 显示占位字符
-        self.placeholderLabel.hidden = NO;
-        
+
         // 将发送按钮置为无效
         self.sendButton.enabled = NO;
         
@@ -634,51 +611,15 @@ CGFloat SuperViewHeight = 0.f;
 //    self.textBackgroundView.backgroundColor = textViewBackgroundColor;
 }
 
-- (void)setFont:(UIFont *)font {
-    _font = font;
-    _textView.font = font;
-    self.placeholderLabel.font = _textView.font;
-}
-
 - (void)setPlaceholder:(NSString *)placeholder {
     _placeholder = placeholder;
     
-    self.placeholderLabel.text = placeholder;
+    self.textView.placeholder = placeholder;
     
     // 规则：只要设置占位字符，就清空输入框
     if (self.textView.text.length) {
         [self clear];
     }
-}
-
-- (void)setPlaceholderColor:(UIColor *)placeholderColor {
-    placeholderColor = placeholderColor;
-    
-    self.placeholderLabel.textColor = placeholderColor;
-}
-
-- (void)setSendButtonBackgroundColor:(UIColor *)sendButtonBackgroundColor {
-    _sendButtonBackgroundColor = sendButtonBackgroundColor;
-    
-    self.sendButton.backgroundColor = sendButtonBackgroundColor;
-}
-
-- (void)setSendButtonTitle:(NSString *)sendButtonTitle {
-    _sendButtonTitle = sendButtonTitle;
-    
-    [self.sendButton setTitle:sendButtonTitle forState:UIControlStateNormal];
-}
-
-- (void)setSendButtonCornerRadius:(CGFloat)sendButtonCornerRadius {
-    _sendButtonCornerRadius = sendButtonCornerRadius;
-    
-    self.sendButton.layer.cornerRadius = sendButtonCornerRadius;
-}
-
-- (void)setSendButtonFont:(UIFont *)sendButtonFont {
-    _sendButtonFont = sendButtonFont;
-    
-    self.sendButton.titleLabel.font = sendButtonFont;
 }
 
 - (UIView *)backgroundView {

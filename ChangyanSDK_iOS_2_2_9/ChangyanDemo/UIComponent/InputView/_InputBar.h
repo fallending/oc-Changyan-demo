@@ -56,16 +56,8 @@ typedef NS_ENUM(NSInteger, _InputBarStyle) {
 @interface _InputBar : UIView
 
 @property (nonatomic, assign)   NSInteger maxCount;
-
-@property (nonatomic, strong)   UIFont *font;
 @property (nonatomic, copy)     NSString *placeholder;
-@property (nonatomic, strong)   UIColor *placeholderColor;
 @property (nonatomic, strong)   UIColor *textViewBackgroundColor;
-
-@property (nonatomic, strong)   UIColor *sendButtonBackgroundColor;
-@property (nonatomic, copy)     NSString *sendButtonTitle;
-@property (nonatomic, assign)   CGFloat sendButtonCornerRadius;
-@property (nonatomic, strong)   UIFont *sendButtonFont;
 
 // 创建在当前视图上下文
 + (instancetype)showWithStyle:(_InputBarStyle)style delegate:(id<_InputBarDelagete>)delegate inView:(UIView *)view;

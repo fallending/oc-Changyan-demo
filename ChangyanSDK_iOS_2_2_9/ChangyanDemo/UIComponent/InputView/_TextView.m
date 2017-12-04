@@ -11,6 +11,8 @@
 
 #import "_TextView.h"
 
+#define kPlaceholderColor [UIColor colorWithRed:170/255.f green:170/255.f blue:170/255.f alpha:1]
+
 @interface _TextView ()
 
 - (void)refreshPlaceholder;
