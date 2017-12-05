@@ -128,16 +128,16 @@
     
     
     // 自测的 1
-//    [ChangyanSDK registerApp:@"cythD4QF9"
-//                      appKey:@"e61d1466115c008bbd17d5ace447b945"
-//                 redirectUrl:@"http://10.2.58.251:8081/login-success.html"
-//        anonymousAccessToken:@"lRTU3LghBcOtwGzEapYEsKt69Us55p8xBPbvxZ8EhW0"];
+    [ChangyanSDK registerApp:@"cythD4QF9"
+                      appKey:@"e61d1466115c008bbd17d5ace447b945"
+                 redirectUrl:@"http://10.2.58.251:8081/login-success.html"
+        anonymousAccessToken:@"lRTU3LghBcOtwGzEapYEsKt69Us55p8xBPbvxZ8EhW0"];
     
     // 自测的 2
-    [ChangyanSDK registerApp:@"cytiQOUlM"
-                      appKey:@"cfe6365d2dd08f920c896161204c666e"
-                 redirectUrl:@"https://www.baidu.com"
-        anonymousAccessToken:@""];
+//    [ChangyanSDK registerApp:@"cytiQOUlM"
+//                      appKey:@"cfe6365d2dd08f920c896161204c666e"
+//                 redirectUrl:@"https://www.baidu.com"
+//        anonymousAccessToken:@""];
     
     [ChangyanSDK setAllowSelfLogin:YES];
     [ChangyanSDK setLoginViewController:[[LoginViewController alloc] init]];

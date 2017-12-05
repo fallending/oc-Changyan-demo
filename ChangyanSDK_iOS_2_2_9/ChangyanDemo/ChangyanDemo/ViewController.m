@@ -397,7 +397,9 @@
 }
 
 - (void)replyCommentButtonClick {
-    [ChangyanSDK getCommentReplies:@"58776059" commentID:@"129605488" pageSize:nil pageNo:nil completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
+    [ChangyanSDK getCommentReplies:@"4145709548"
+                         commentID:@"1521598690"//@"1521596215"//@"1521581047"
+                          pageSize:nil pageNo:nil completeBlock:^(CYStatusCode statusCode, NSString *responseStr) {
         
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"评论的回复" message:responseStr preferredStyle:UIAlertControllerStyleAlert];
         UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil];
@@ -643,7 +645,7 @@
 #pragma mark - XHInputViewDelagete
 
 - (void)onConfig:(_InputBar *)inputBar {
-    inputBar.maxCount = 20;
+    inputBar.maxCount = 10;
     inputBar.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
     inputBar.placeholder = @"发表你的神评论吧～最多200字";
 }
