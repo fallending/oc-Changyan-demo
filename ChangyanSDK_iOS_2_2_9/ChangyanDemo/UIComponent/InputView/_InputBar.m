@@ -79,7 +79,7 @@ CGFloat SuperViewHeight = 0.f;
 
 @property (nonatomic, strong) UIButton *sendButton;
 
-@property (nonatomic, assign) CGRect showFrameDefault;
+@property (nonatomic, assign) CGRect showFrameDefault; // 这个 默认值，应该在屏幕之外
 @property (nonatomic, assign) CGRect sendButtonFrameDefault;
 @property (nonatomic, assign) CGRect textViewFrameDefault;
 
@@ -269,7 +269,7 @@ CGFloat SuperViewHeight = 0.f;
 }
 
 - (void)resetFrameDefault {
-    self.frame = self.showFrameDefault;
+    self.frame = self.showFrameDefault; // 这个 默认值，应该在屏幕之外
     self.sendButton.frame = self.sendButtonFrameDefault;
     self.textView.frame = self.textViewFrameDefault;
 }
@@ -341,22 +341,29 @@ CGFloat SuperViewHeight = 0.f;
         CGFloat heightDefault = kInputBarHeight;
         if(height >= heightDefault) {
             [UIView animateWithDuration:0.3 animations:^{
-                //调整frame
+                // 调整frame
                 CGRect frame = self.showFrameDefault;
                 frame.size.height = height;
                 frame.origin.y = _showFrameDefault.origin.y - (height - _showFrameDefault.size.height);
                 self.frame = frame;
                 
-                //调整sendButton frame
+                // 如果不发生变化，就不去修改呢？
+                
+                // 调整sendButton frame
                 _sendButton.frame = CGRectMake(kScreenW - kStyleHorizontalSpace - _sendButton.frame.size.width, self.bounds.size.height - _sendButton.bounds.size.height - kStyleVerticalSpace, _sendButton.bounds.size.width, _sendButton.bounds.size.height);
                 
-                //调整textView frame
-                textView.frame = CGRectMake(
-                                            kStyleHorizontalSpace,
-                                            kStyleVerticalSpace,
-                                            textView.bounds.size.width,
-                                            self.bounds.size.height - 2*kStyleVerticalSpace
-                                            );
+                // 调整textView frame
+                CGFloat oldTextViewHeight = textView.frame.size.height;
+                
+                if (fabs(oldTextViewHeight - (self.bounds.size.height - 2*kStyleVerticalSpace)) > 1.f) {
+                    textView.frame = CGRectMake(
+                                                kStyleHorizontalSpace,
+                                                kStyleVerticalSpace,
+                                                textView.bounds.size.width,
+                                                self.bounds.size.height - 2*kStyleVerticalSpace
+                                                );
+                }
+                
             }];
         }
 //        else {
@@ -633,9 +640,15 @@ CGFloat SuperViewHeight = 0.f;
 #pragma mark - Utility
 
 - (void)pinToBottom {
-    CGRect frame = self.frame;
-    frame.origin.y = SuperViewHeight - self.frame.size.height;
-    self.frame = frame;
+    [UIView animateWithDuration:keyboardAnimationDuration animations:^{
+        CGRect frame = self.showFrameDefault;
+        
+        frame.origin.y = SuperViewHeight - frame.size.height;
+        self.frame = frame;
+        
+        self.textView.frame = self.textViewFrameDefault;
+        self.sendButton.frame = self.sendButtonFrameDefault;
+    } completion:nil];
 }
 
 - (void)animateShow {

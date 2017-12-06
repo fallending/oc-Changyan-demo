@@ -645,7 +645,7 @@
 #pragma mark - XHInputViewDelagete
 
 - (void)onConfig:(_InputBar *)inputBar {
-    inputBar.maxCount = 10;
+    inputBar.maxCount = 100;
     inputBar.textViewBackgroundColor = [UIColor groupTableViewBackgroundColor];
     inputBar.placeholder = @"发表你的神评论吧～最多200字";
 }
