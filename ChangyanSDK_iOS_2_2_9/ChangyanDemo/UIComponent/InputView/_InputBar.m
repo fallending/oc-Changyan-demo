@@ -79,7 +79,9 @@ CGFloat SuperViewHeight = 0.f;
 
 @property (nonatomic, strong) UIButton *sendButton;
 
-@property (nonatomic, assign) CGRect showFrameDefault; // 这个 默认值，应该在屏幕之外
+//@property (nonatomic, assign) CGRect showFrameDefault; // 这个 默认值，应该在屏幕之外
+@property (nonatomic, assign) CGRect inputBarFrameStillDefault; // 停止底部的默认位置
+@property (nonatomic, assign) CGRect inputBarFrameDefault;  // 默认的位置，同时也是still样式的从屏幕外移入的屏幕内的初始位置
 @property (nonatomic, assign) CGRect sendButtonFrameDefault;
 @property (nonatomic, assign) CGRect textViewFrameDefault;
 

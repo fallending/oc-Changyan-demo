@@ -83,7 +83,21 @@
 }
 
 - (void)loginClick {
-    [[ChangyanManager sharedInstance].user loginWithUUID:@"33984533" username:@"测试昵称33894533" imageUrl:@"http://sucimg.itc.cn/avatarimg/253473308_1434154914604_c175" success:^(UserManager *user) {
+    // 次     结果   UUID           Nick
+    // 第一次：[失败] 3398dddddd4533 にっぽんご
+    // 第二次：[成功] 3398dddddd4533 にっぽんごddd
+    
+    // 第一次：[失败] 339ddd8dddddd4533 ウチナーグチ
+    // 第二次：[成功] 339ddd8dddddd4533 ウチナーaグチ
+    
+    
+//    [[ChangyanManager sharedInstance].user loginWithUUID:@"3398dddddd4533" username:@"にっぽんご" imageUrl:@"http://sucimg.itc.cn/avatarimg/253473308_1434154914604_c175"
+//
+    [[ChangyanManager sharedInstance].user loginWithUUID:@"339ddd8dddddd4533" username:@"ウチナーaグチ" imageUrl:@"http://sucimg.itc.cn/avatarimg/253473308_1434154914604_c175"
+     
+     
+     
+                                                 success:^(UserManager *user) {
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"登陆成功!" preferredStyle:UIAlertControllerStyleAlert];
         UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action){
             [self dismissViewControllerAnimated:YES completion:nil];
