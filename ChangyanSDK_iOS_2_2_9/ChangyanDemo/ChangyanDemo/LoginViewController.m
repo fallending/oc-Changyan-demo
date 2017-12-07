@@ -90,10 +90,11 @@
     // 第一次：[失败] 339ddd8dddddd4533 ウチナーグチ
     // 第二次：[成功] 339ddd8dddddd4533 ウチナーaグチ
     
+    // {"error_code":10211,"error_msg":"user register fail","expires_in":1209600}
     
 //    [[ChangyanManager sharedInstance].user loginWithUUID:@"3398dddddd4533" username:@"にっぽんご" imageUrl:@"http://sucimg.itc.cn/avatarimg/253473308_1434154914604_c175"
 //
-    [[ChangyanManager sharedInstance].user loginWithUUID:@"339ddd8dddddd4533" username:@"ウチナーaグチ" imageUrl:@"http://sucimg.itc.cn/avatarimg/253473308_1434154914604_c175"
+    [[ChangyanManager sharedInstance].user loginWithUUID:@"339d4444444dd8dddddd4533" username:@"用户[チナグ]" imageUrl:@"http://sucimg.itc.cn/avatarimg/253473308_1434154914604_c175"
      
      
      
